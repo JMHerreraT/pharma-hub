@@ -1,4 +1,5 @@
 import { TablePageNumber } from "@/components/atoms/TablePageNumber";
+import { Button } from "@/components/ui/button";
 
 interface TablePaginationNumbersProps {
   currentPage: number;
@@ -62,9 +63,15 @@ export const TablePaginationNumbers: React.FC<TablePaginationNumbersProps> = ({
       {getVisiblePages().map((page, index) => {
         if (page === -1 || page === -2) {
           return (
-            <span key={`ellipsis-${index}`} className="px-2 text-slate-400 select-none">
-              ...
-            </span>
+            <Button
+            key={`ellipsis-${index}`}
+            variant="ghost"
+            size="sm"
+            className={`w-8 h-8 rounded-full border border-gray-200 text-slate-600 hover:bg-none select-none`}
+            disabled
+          >
+            ...
+          </Button>
           );
         }
 

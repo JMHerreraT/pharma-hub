@@ -1,5 +1,4 @@
 "use client";
-import BranchSelector from "@/components/molecules/BranchSelector";
 import {
   LayoutDashboard,
   Package,
@@ -15,6 +14,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { BranchSelectorPopover } from "@/components/molecules/BranchSelector";
 
 const navItems = [
   {
@@ -77,9 +77,9 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-64 h-full dark:bg-muted p-4 space-y-6">
+    <aside className="w-64 h-full p-4 space-y-6">
       <div className="text-2xl font-bold px-4">Pharmacy</div>
-      <BranchSelector />
+      <BranchSelectorPopover versions={["1.0.1", "1.1.0-alpha", "2.0.0-beta1"]} defaultVersion="1.0.1" />
       <nav className="space-y-2">
         {navItems.map(({ label, children }) => (
           <div key={label} className="space-y-1">
@@ -105,19 +105,19 @@ export function Sidebar() {
                       href={href}
                       className={`group flex items-center gap-3 px-4 py-2 rounded-full transition-colors ${
                         isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-primary hover:text-primary-foreground"
+                          ? "bg-secondary text-secondary-foreground"
+                          : "hover:bg-secondary hover:text-secondary-foreground"
                       }`}
                     >
                       <div className={`w-8 h-8 flex items-center justify-center rounded-full p-2 transition-colors ${
                         isActive
-                          ? "bg-primary-foreground/20"
-                          : "bg-primary/10 group-hover:bg-primary-foreground/20"
+                          ? "bg-primary/50"
+                          : "bg-primary/20 group-hover:bg-primary/50"
                       }`}>
                         <Icon className={`h-3 w-3 transition-colors ${
                           isActive
-                            ? "text-primary-foreground"
-                            : "text-primary group-hover:text-primary-foreground"
+                            ? "text-foreground"
+                            : "text-foreground group-hover:text-primary-foreground"
                         }`} fill="currentColor"/>
                       </div>
                       <span className="text-sm font-normal">{childLabel}</span>

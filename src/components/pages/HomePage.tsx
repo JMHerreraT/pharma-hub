@@ -444,6 +444,7 @@ const HomePage = () => {
                             filterPlaceholder="Filter users..."
                             enablePagination={true}
                             enableColumnVisibility={true}
+                            initialPageSize={3}
                         />
                     </CardContent>
                     <CardFooter>

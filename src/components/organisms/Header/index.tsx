@@ -1,7 +1,13 @@
 "use client";
 import { SearchTrigger } from "@/components/molecules/SearchTrigger";
-import UserDropdown from "@/components/molecules/UserDropdown";
-import NotificationsDropdown from "@/components/molecules/Notifications/NotificationsDropdown";
+import Notifications from "@/components/molecules/Notifications";
+import { UserProfile } from "@/components/molecules/UserProfile";
+
+const user = {
+  name: "shadcn",
+  email: "m@example.com",
+  avatar: "/avatars/shadcn.jpg",
+}
 
 export function Header({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) {
   return (
@@ -11,9 +17,9 @@ export function Header({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) 
       </div>
 
       <div className="flex items-center gap-4">
-        <NotificationsDropdown />
+        <Notifications />
 
-        <UserDropdown />
+        <UserProfile user={user} />
       </div>
     </header>
   );
