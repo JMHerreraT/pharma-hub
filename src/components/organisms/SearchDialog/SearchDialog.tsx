@@ -1,117 +1,97 @@
 "use client"
 
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Command, Search } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
-import { mockResults } from '@/lib/command-search-helpers'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Mail, User, Search, Calendar, FileText, Settings } from 'lucide-react'
+import React, { useEffect } from 'react'
+import { Command, CommandGroup, CommandEmpty, CommandInput, CommandList, CommandItem } from '@/components/ui/command'
 
 const SearchDialog = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (isOpen: boolean) => void }) => {
-  const [searchQuery, setSearchQuery] = useState("")
-
   // Handle keyboard shortcut
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === "k") {
-        event.preventDefault()
-        setIsOpen(true)
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        setIsOpen(!isOpen)
       }
     }
 
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
+    document.addEventListener("keydown", down)
+    return () => document.removeEventListener("keydown", down)
   }, [])
 
-  // Group results by category
-  const groupedResults = mockResults.reduce(
-    (acc, result) => {
-      if (!acc[result.category]) {
-        acc[result.category] = []
-      }
-      acc[result.category].push(result)
-      return acc
+  const searchItems = [
+    {
+      group: "Suggestions",
+      items: [
+        { icon: FileText, label: "Documentation", description: "Browse the docs" },
+        { icon: Settings, label: "Settings", description: "Manage your preferences" },
+        { icon: User, label: "Profile", description: "View your profile" },
+      ],
     },
-    {} as Record<string, typeof mockResults>,
-  )
-
-  const filteredResults = Object.entries(groupedResults).reduce(
-    (acc, [category, results]) => {
-      const filtered = results.filter(
-        (result) =>
-          result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          result.subtitle.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
-      if (filtered.length > 0) {
-        acc[category] = filtered
-      }
-      return acc
+    {
+      group: "Recent",
+      items: [
+        { icon: Calendar, label: "Calendar Events", description: "View upcoming events" },
+        { icon: Mail, label: "Messages", description: "Check your messages" },
+      ],
     },
-    {} as Record<string, typeof mockResults>,
-  )
+  ]
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen} modal={true}>
-      <DialogContent
-        className="sm:max-w-lg"
-        showCloseButton={false}
-      >
-        <DialogTitle className="hidden">{''}</DialogTitle>
-        <div className="flex flex-col">
-          <div className="flex items-center gap-3 p-4 border-b border-gray-200 flex-shrink-0">
-            <Search className="w-5 h-5 text-gray-400" />
-            <Input
-              placeholder="Search or ask a question in OpenLoop..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border-0 focus-visible:ring-0 text-base"
-              autoFocus
-            />
-          </div>
-          <div className="flex-1 w-full overflow-y-auto min-h-0 p-4 space-y-6 max-h-[600px]">
-            {/* Results - Fixed height with scroll */}
-            {Object.entries(filteredResults).map(([category, results]) => (
-              <div key={category} className="sm:max-w-md">
-                <h3 className="text-sm font-medium text-gray-500 mb-3">{category}</h3>
-                <div className="w-full space-y-1">
-                  {results.map((result) => {
-                    const IconComponent = result.icon
-                    return (
-                      <div
-                        key={result.id}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer group"
-                      >
-                        <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center">
-                          <IconComponent className="w-4 h-4 text-gray-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-900 truncate">{result.title}</div>
-                          {result.subtitle && (
-                            <div className="text-sm text-gray-500 truncate">{result.subtitle}</div>
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-400">{result.date}</div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-          {/* Footer - Fixed at bottom */}
-          <DialogFooter className="border-t border-gray-200">
-          {/* <div className="border-t p-3 bg-gray-50 flex-shrink-0"> */}
-            <div className="flex items-center justify-between text-sm text-gray-500">
-              <span className="flex items-center gap-1">
-                <Command className="w-3 h-3" />
-                <span className="text-xs">K</span> Command Search
-              </span>
+    <Dialog open={isOpen} onOpenChange={setIsOpen} modal>
+        <DialogContent className="overflow-hidden p-0 shadow-lg">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Search</DialogTitle>
+          </DialogHeader>
+          <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+            <div className="flex items-center border-b px-3">
+              <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" fill="currentColor" />
+              <CommandInput
+                placeholder="Type a command or search..."
+                className="flex h-12 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              />
             </div>
-          {/* </div> */}
-          </DialogFooter>
-
-        </div>
-      </DialogContent>
-    </Dialog>
+            <CommandList className="max-h-[300px] overflow-y-auto">
+              <CommandEmpty>No results found.</CommandEmpty>
+              {searchItems.map((group) => (
+                <CommandGroup key={group.group} heading={group.group}>
+                  {group.items.map((item) => (
+                    <CommandItem
+                      key={item.label}
+                      className="flex items-center gap-3 px-3 py-3 cursor-pointer hover:text-sidebar-accent-foreground"
+                      onSelect={() => {
+                        setIsOpen(false)
+                        // Handle item selection here
+                        console.log(`Selected: ${item.label}`)
+                      }}
+                    >
+                      <item.icon className="h-4 w-4" fill="currentColor" />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{item.label}</span>
+                        <span className="text-xs">{item.description}</span>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              ))}
+            </CommandList>
+            <div className="flex items-center justify-between border-t px-3 py-2 text-xs text-foreground">
+              <div className="flex items-center gap-2">
+                <kbd className="inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium">
+                  <span>↵</span>
+                </kbd>
+                <span>to select</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium">
+                  <span>Esc</span>
+                </kbd>
+                <span>to close</span>
+              </div>
+            </div>
+          </Command>
+        </DialogContent>
+      </Dialog>
   )
 }
 

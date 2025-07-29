@@ -1,6 +1,7 @@
 import { Bell, Globe } from 'lucide-react'
 import React from 'react'
 import NotificationsDropdown from './NotificationsDropdown'
+import { ThemeToggle } from '../ThemeToggle'
 
 const Notifications = () => {
   const handleBellClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -19,13 +20,15 @@ const Notifications = () => {
      <NotificationsDropdown />
 
       {/* Language selector - clickeable area */}
-      <div
+      {/* <div
         className="cursor-pointer flex items-center gap-2 p-1 -m-1 rounded-full hover:bg-primary/20 transition-colors"
         onClick={handleLanguageClick}
       >
         <span className="text-primary-foreground font-medium">EN</span>
         <Globe className="w-5 h-5 text-primary-foreground" />
-      </div>
+      </div> */}
+
+      <ThemeToggle />
     </div>
   )
 }

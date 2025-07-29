@@ -48,27 +48,26 @@ const NotificationsDropdown = () => {
         <div className="flex items-center justify-center">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="icon" className="relative bg-transparent cursor-pointer p-1 -m-1 rounded-full hover:bg-gray-200 transition-colors">
+              <Button variant="outline" size="icon" className="relative cursor-pointer p-1 -m-1 rounded-fulltransition-colors">
                 <Bell className="h-4 w-4" />
-                <span className="absolute -top-1 -right-1 h-3 w-3 bg-blue-500 rounded-full"></span>
+                <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full"></span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-96 p-0" align="end">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between py-4 px-6 border-b">
+            <PopoverContent className="w-96 p-0 bg-background" align="end">
+                <div className="flex flex-row items-center justify-between py-4 px-6 border-b">
                   <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
-                  <Button variant="link" className="text-blue-500 hover:text-blue-600 p-0 h-auto font-medium">
+                  <Button variant="link" className="p-0 h-auto font-bold text-primary cursor-pointer">
                     Mark all as read
                   </Button>
-                </CardHeader>
-                <CardContent className="p-0">
+                </div>
+                <div className="p-0">
                   <div className="divide-y divide-gray-100">
                     {notifications.map((notification) => {
                       const IconComponent = notification.icon
                       return (
                         <div
                           key={notification.id}
-                          className="flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors"
+                          className="flex items-start gap-3 p-4  transition-colors hover:bg-gray-50 cursor-pointer"
                         >
                           <div
                             className={`flex-shrink-0 w-10 h-10 rounded-lg ${notification.iconBg} flex items-center justify-center`}
@@ -80,19 +79,18 @@ const NotificationsDropdown = () => {
                             <p className="text-sm text-gray-500 mt-1">{notification.timestamp}</p>
                           </div>
                           {notification.isNew && (
-                            <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                            <div className="flex-shrink-0 w-2 h-2 rounded-full mt-2"></div>
                           )}
                         </div>
                       )
                     })}
                   </div>
                   <div className="p-4 border-t">
-                    <Button variant="outline" className="w-full text-gray-700 hover:text-gray-900 bg-transparent">
+                    <Button variant="outline" className="w-full text-gray-700 hover:text-gray-900">
                       Show all
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
             </PopoverContent>
           </Popover>
         </div>
