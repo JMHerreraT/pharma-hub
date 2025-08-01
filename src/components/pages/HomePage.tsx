@@ -1,9 +1,12 @@
 "use client"
 
 import React from 'react'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import ProductsDataTable from '../organisms/ProductsDataTable';
-// import DonutChart from '../organisms/DonutChart';
+import ChartTest from '../organisms/ChartTest';
+import DonutChart from '../organisms/DonutChart';
+import MetricCard from '../organisms/MetricCard';
+import { DollarSign, Grid3X3, AlertCircle, Users } from 'lucide-react';
 
 export type User = {
     id: string;
@@ -14,105 +17,187 @@ export type User = {
     createdAt: Date;
 };
 
-
-
-
 const HomePage = () => {
-    return (
-        <div className="grid grid-cols-5 grid-rows-7 gap-4">
-            <div className="col-span-5 row-span-2">
-                <Card className='w-full h-full'>
-                    <CardHeader>
-                        Resultado de ventas
-                    </CardHeader>
-                    <CardContent className='w-full h-full flex flex-row gap-4'>
-                    {/* <DonutChart
-        title="Resumen Financiero"
-        size="lg"
-        total={755000}
-        data={[
-          { name: "Compras", value: 300000, percentage: 40, color: "#C7E9B4" },
-          { name: "Ventas", value: 200000, percentage: 26.5, color: "#FFB3BA" },
-          { name: "Inactivos", value: 120000, percentage: 16, color: "#E5E5E5", pattern: "diagonal-stripes" },
-          { name: "Proveedores", value: 135000, percentage: 17.5, color: "#7FCDCD" },
-        ]}
-      /> */}
-                        {/* <Card className='w-full h-full'>
-                            <CardHeader>
-                                <CardTitle>
-                                    Grafica 1
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className='w-full h-full flex items-center justify-center'>
-                                <p>Aqui mis grafica 1</p>
-                            </CardContent>
-                        </Card> */}
-                        <Card className='w-full h-full'>
-                            <CardHeader>
-                                <CardTitle>
-                                    Grafica 2
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className='w-full h-full flex items-center justify-center'>
-                                <p>Aqui mis grafica 2</p>
-                            </CardContent>
-                        </Card>
-                        <Card className='w-full h-full'>
-                            <CardHeader>
-                                <CardTitle>
-                                    Grafica 3
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className='w-full h-full flex items-center justify-center'>
-                                <p>Aqui mis grafica 3</p>
-                            </CardContent>
-                        </Card>
-                        <Card className='w-full h-full'>
-                            <CardHeader>
-                                <CardTitle>
-                                    Grafica 4
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className='w-full h-full flex items-center justify-center'>
-                                <p>Aqui mis grafica 4</p>
-                            </CardContent>
-                        </Card>
-                    </CardContent>
-                </Card>
-            </div>
-            <div className="col-span-2 row-span-3 row-start-3">
-                <Card className='w-full h-full'>
-                    <CardHeader>
-                        Resultado de ventas
-                    </CardHeader>
-                    <CardContent className='w-full h-full p-0 items-center justify-center flex'>
-                        <p>Aqui mis graficas</p>
-                    </CardContent>
-                    <CardFooter>
-                        <p>Aqui mi footer</p>
-                    </CardFooter>
-                </Card>
-            </div>
-            <div className="col-span-3 row-span-3 col-start-3 row-start-3">
-                <Card className='w-full h-full'>
-                    <CardHeader>
-                        Resultado de ventas
-                    </CardHeader>
-                    <CardContent className='w-full h-full p-0 items-center justify-center flex'>
-                        <p>Aqui mis graficas</p>
-                    </CardContent>
-                    <CardFooter>
-                        <p>Aqui mi footer</p>
-                    </CardFooter>
-                </Card>
-            </div>
-            <div className="col-span-5 row-span-2 row-start-6">
-                {/* <Card className='w-full h-full'>
-                    <CardContent className='w-full h-full items-center justify-center flex'>
+    // Datos de prueba para el gráfico
+    const mockChartData = [
+        {
+            total_students: 120,
+            month: 1,
+            year: 2024,
+            on_time: 95,
+            delinquents: 25
+        },
+        {
+            total_students: 135,
+            month: 2,
+            year: 2024,
+            on_time: 110,
+            delinquents: 25
+        },
+        {
+            total_students: 98,
+            month: 3,
+            year: 2024,
+            on_time: 78,
+            delinquents: 20
+        },
+        {
+            total_students: 156,
+            month: 4,
+            year: 2024,
+            on_time: 125,
+            delinquents: 31
+        },
+        {
+            total_students: 142,
+            month: 5,
+            year: 2024,
+            on_time: 118,
+            delinquents: 24
+        },
+        {
+            total_students: 167,
+            month: 6,
+            year: 2024,
+            on_time: 145,
+            delinquents: 22
+        },
+        {
+            total_students: 134,
+            month: 7,
+            year: 2024,
+            on_time: 101,
+            delinquents: 33
+        },
+        {
+            total_students: 189,
+            month: 8,
+            year: 2024,
+            on_time: 152,
+            delinquents: 37
+        }
+    ];
 
+    // Datos para el DonutChart - similar al vendor breakdown de la imagen
+    const vendorBreakdownData = [
+        { name: "Purchases", value: 456000, percentage: 42, color: "#C7E9B4" },
+        { name: "Suppliers", value: 284000, percentage: 28, color: "#7FCDCD" },
+        { name: "Sales", value: 152000, percentage: 18, color: "#FFB3BA" },
+        { name: "No Sales", value: 122000, percentage: 12, color: "#E5E5E5", pattern: "diagonal-stripes" },
+    ];
+
+    const [selectedMonth, setSelectedMonth] = React.useState({
+        label: 'Agosto 2024',
+        value: '8-2024'
+    });
+
+    return (
+        <div className="flex flex-col gap-4 sm:gap-6 h-full">
+            {/* Pharmacy metrics cards - Responsive grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+                <MetricCard
+                    title="Today's Sales"
+                    value="$95.00"
+                    change="2.5%"
+                    changeType="positive"
+                    period="This Month"
+                    icon={<DollarSign size={20} />}
+                    color="green"
+                    className="min-h-[140px] sm:min-h-[160px]"
+                />
+
+                <MetricCard
+                    title="Available Categories"
+                    value="1.457%"
+                    change="2.5%"
+                    changeType="positive"
+                    period="This Month"
+                    icon={<Grid3X3 size={20} />}
+                    color="teal"
+                    className="min-h-[140px] sm:min-h-[160px]"
+                />
+
+                <MetricCard
+                    title="Expired Medicines"
+                    value="0.00%"
+                    change="2.5%"
+                    changeType="positive"
+                    period="This Month"
+                    icon={<AlertCircle size={20} />}
+                    color="red"
+                    className="min-h-[140px] sm:min-h-[160px]"
+                />
+
+                <MetricCard
+                    title="System Users"
+                    value="255K"
+                    change="2.5%"
+                    changeType="positive"
+                    period="This Month"
+                    icon={<Users size={20} />}
+                    color="purple"
+                    className="min-h-[140px] sm:min-h-[160px]"
+                />
+            </div>
+
+            {/* Main charts section - Responsive layout */}
+            <div className="flex gap-3 sm:gap-4 flex-1 min-h-[350px] sm:min-h-[400px] flex-col xl:flex-row">
+                {/* Left chart - Student Statistics */}
+                <Card className="flex-1 min-h-[350px] sm:min-h-[400px]">
+                    <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+                        <CardTitle className="text-base sm:text-lg">Estadísticas de Estudiantes</CardTitle>
+                        <CardDescription className="text-xs sm:text-sm">
+                            Análisis mensual de pagos y morosidad
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-1 p-2 sm:p-4">
+                        <div className="w-full h-full min-h-[280px] sm:min-h-[320px] flex items-stretch">
+                            <ChartTest
+                                data={mockChartData}
+                                selectedMonth={selectedMonth}
+                                setSelectedMonth={setSelectedMonth}
+                            />
+                        </div>
                     </CardContent>
-                </Card> */}
-                <ProductsDataTable />
+                    <CardFooter className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                            Distribución de estudiantes con pagos completos vs pendientes
+                        </p>
+                    </CardFooter>
+                </Card>
+
+                {/* Right chart - Vendor Breakdown */}
+                <Card className="flex-1 min-h-[350px] sm:min-h-[400px]">
+                    <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+                        <CardTitle className="text-base sm:text-lg">Graph Report</CardTitle>
+                        <CardDescription className="text-xs sm:text-sm">
+                            Distribución de métricas de negocio
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-full flex items-center justify-center p-2 sm:p-4">
+                        <div className="w-full h-full min-h-[280px] sm:min-h-[320px]">
+                            <DonutChart
+                                data={vendorBreakdownData}
+                                total={1014000}
+                                title=""
+                                size="md"
+                                className="h-full"
+                            />
+                        </div>
+                    </CardContent>
+                    <CardFooter className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                            Análisis detallado de categorías de rendimiento
+                        </p>
+                    </CardFooter>
+                </Card>
+            </div>
+
+            {/* Data table section - Responsive */}
+            <div className="flex-shrink-0 min-h-0">
+                <div className="overflow-x-auto">
+                    <ProductsDataTable />
+                </div>
             </div>
         </div>
     )

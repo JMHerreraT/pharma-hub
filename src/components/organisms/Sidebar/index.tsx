@@ -27,7 +27,7 @@ import { UserProfile } from "@/components/molecules/UserProfile"
 interface NavItem {
   title: string;
   url: string;
-  icon?: React.ComponentType<any>;
+  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 interface NavSection {
@@ -122,12 +122,14 @@ export function SidebarComponent({ ...props }: React.ComponentProps<typeof Sideb
   }
 
   return (
-    <Sidebar {...props} className="w-64 h-full">
-      <SidebarHeader className="px-4 py-4">
-        <div className="text-2xl font-bold">Pharmacy</div>
-        <BranchSelectorPopover />
+    <Sidebar {...props} className="w-56 md:w-60 lg:w-64 h-full" collapsible="offcanvas" variant="sidebar">
+      <SidebarHeader className="px-3 md:px-4 py-3 md:py-4">
+        <div className="text-lg md:text-xl lg:text-2xl font-bold">Pharmacy</div>
+        <div className="mt-2">
+          <BranchSelectorPopover />
+        </div>
       </SidebarHeader>
-      <SidebarContent className="px-4">
+      <SidebarContent className="px-3 md:px-4">
         {data.navMain.map((item) => {
           const sectionIsActive = isSectionActive(item)
 
@@ -136,21 +138,21 @@ export function SidebarComponent({ ...props }: React.ComponentProps<typeof Sideb
             key={item.title}
             title={item.title}
             defaultOpen={sectionIsActive}
-            className="group/collapsible mb-6"
+            className="group/collapsible mb-3 md:mb-4 lg:mb-6"
           >
             <SidebarGroup>
               <SidebarGroupLabel
                 asChild
                 className={`group/label text-sm text-sidebar-foreground cursor-pointer`}
               >
-                <CollapsibleTrigger className={`w-full justify-between text-xs font-normal text-gray-500 uppercase tracking-wide px-3`}>
+                <CollapsibleTrigger className={`w-full justify-between text-xs font-normal text-gray-500 uppercase tracking-wide px-2 md:px-3`}>
                   {item.title}{" "}
-                  <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                  <ChevronRight className="ml-auto h-3 w-3 md:h-4 md:w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
                 </CollapsibleTrigger>
               </SidebarGroupLabel>
               <CollapsibleContent>
                 <SidebarGroupContent>
-                  <SidebarMenu className="space-y-2">
+                  <SidebarMenu className="space-y-1 md:space-y-2">
                     {item.items.map((item) => {
                       const IconComponent = item.icon; // Extraer el componente del icono
                       const isActive = isItemActive(item.url)
@@ -158,21 +160,21 @@ export function SidebarComponent({ ...props }: React.ComponentProps<typeof Sideb
                       return (
                         <SidebarMenuItem key={item.title}>
                           <div key={item.title} className={`
-                            flex items-center gap-3 px-4 rounded-lg text-sm font-medium transition-all duration-200
+                            flex items-center gap-2 md:gap-3 px-2 md:px-3 lg:px-4 rounded-lg text-sm font-medium transition-all duration-200
                             hover:shadow-sm hover:ring-1 hover:ring-gray-200 hover:bg-background hover:text-primary-foreground
                             ${isActive && 'text-primary shadow-sm bg-background'}
                           `}>
                             <Link
                               href={item.url}
                               className={`
-                                flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-200 w-full
+                                flex items-center gap-2 md:gap-3 px-2 py-2 md:py-3 text-sm font-medium transition-all duration-200 w-full
                                 ${isActive && 'text-primary-foreground'}
                               `}
                             >
                               {IconComponent && (
                                 <IconComponent
                                   className={`
-                                    h-5 w-5 flex-shrink-0 transition-colors duration-200
+                                    h-4 w-4 md:h-5 md:w-5 flex-shrink-0 transition-colors duration-200
                                     ${isActive
                                       ? 'text-primary-foreground'
                                       : 'text-gray-500 hover:text-primary-foreground'
@@ -181,7 +183,7 @@ export function SidebarComponent({ ...props }: React.ComponentProps<typeof Sideb
                                   fill="currentColor"
                                 />
                               )}
-                              <span>{item.title}</span>
+                              <span className="truncate text-xs md:text-sm">{item.title}</span>
                             </Link>
                           </div>
                         </SidebarMenuItem>
@@ -195,7 +197,7 @@ export function SidebarComponent({ ...props }: React.ComponentProps<typeof Sideb
         )})}
       </SidebarContent>
       <SidebarRail />
-      <SidebarFooter>
+      <SidebarFooter className="p-2 md:p-3 lg:p-4">
         <UserProfile user={user} />
       </SidebarFooter>
     </Sidebar>
