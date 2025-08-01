@@ -12,13 +12,10 @@ interface ChartData {
 
 interface ChartTestProps {
   data: ChartData[];
-  selectedMonth: { label: string; value: string };
-  setSelectedMonth: React.Dispatch<React.SetStateAction<{ label: string; value: string }>>;
-  capitalize?: (word: string) => string;
   isLoading?: boolean;
 }
 
-const ChartTest = ({ data, selectedMonth, setSelectedMonth, capitalize, isLoading }: ChartTestProps) => {
+const ChartTest = ({ data, isLoading }: ChartTestProps) => {
   const labels = {
     1: ['Ene', 'Enero'],
     2: ['Feb', 'Febrero'],
@@ -45,16 +42,6 @@ const ChartTest = ({ data, selectedMonth, setSelectedMonth, capitalize, isLoadin
     { color: '#9575CD', pattern: 'repeating-linear-gradient(45deg, #9575CD, #9575CD 8px, #7E57C2 8px, #7E57C2 16px)' },
     { color: '#4DB6AC', pattern: 'repeating-linear-gradient(45deg, #4DB6AC, #4DB6AC 8px, #26A69A 8px, #26A69A 16px)' },
   ];
-
-  const parseSelectedMonth = (selectedMonth: { label: string; value: string }) => {
-    const month = selectedMonth.value.split('-')[0];
-    return parseInt(month);
-  };
-
-  const parseSelectedYear = (selectedMonth: { label: string; value: string }) => {
-    const year = selectedMonth.value.split('-')[1];
-    return parseInt(year);
-  };
 
   // Validar que data existe y tiene elementos válidos
   const validData = data && data.length > 0 ? data.filter(item =>
@@ -101,7 +88,7 @@ const ChartTest = ({ data, selectedMonth, setSelectedMonth, capitalize, isLoadin
   }
 
   return (
-    <div className="flex w-full h-full pt-4 sm:pt-6 md:pt-8 justify-between min-h-[300px] sm:min-h-[350px] bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 sm:p-4 md:p-6">
+    <div className="flex w-full h-full pt-4 sm:pt-6 md:pt-8 justify-between min-h-[300px] sm:min-h-[350px] rounded-lg p-3 sm:p-4 md:p-6">
       <div className="flex flex-col gap-4 sm:gap-6 md:gap-8 items-center justify-between py-2 sm:py-4 flex-shrink-0">
         {values.map((value, i) => (
           <span key={i} className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap font-medium">

@@ -1,68 +1,5 @@
 "use client"
 
-// import * as React from "react"
-// import { Check, ChevronsUpDown, GalleryVerticalEnd } from "lucide-react"
-
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuTrigger,
-// } from '@/components/ui/dropdown-menu'
-// import {
-//   SidebarMenu,
-//   SidebarMenuButton,
-//   SidebarMenuItem,
-// } from '@/components/ui/sidebar'
-
-// export function BranchSelectorPopover({
-//   versions,
-//   defaultVersion,
-// }: {
-//   versions: string[]
-//   defaultVersion: string
-// }) {
-//   const [selectedVersion, setSelectedVersion] = React.useState(defaultVersion)
-
-//   return (
-//     <SidebarMenu>
-//       <SidebarMenuItem>
-//         <DropdownMenu>
-//           <DropdownMenuTrigger asChild>
-//             <SidebarMenuButton
-//               size="lg"
-//               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border-primary/50 border-2 rounded-md cursor-pointer"
-//             >
-//               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-//                 <GalleryVerticalEnd className="size-4" />
-//               </div>
-//               <div className="flex flex-col gap-0.5 leading-none">
-//                 <span className="font-semibold">Documentation</span>
-//                 <span className="">v{selectedVersion}</span>
-//               </div>
-//               <ChevronsUpDown className="ml-auto" />
-//             </SidebarMenuButton>
-//           </DropdownMenuTrigger>
-//           <DropdownMenuContent
-//             className="w-[--radix-dropdown-menu-trigger-width]"
-//             align="start"
-//           >
-//             {versions.map((version) => (
-//               <DropdownMenuItem
-//                 key={version}
-//                 onSelect={() => setSelectedVersion(version)}
-//                 className="cursor-pointer hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full"
-//               >
-//                 {version}{" "}
-//                 {version === selectedVersion && <Check className="ml-auto" />}
-//               </DropdownMenuItem>
-//             ))}
-//           </DropdownMenuContent>
-//         </DropdownMenu>
-//       </SidebarMenuItem>
-//     </SidebarMenu>
-//   )
-// }
 import { Fragment, useState } from "react";
 import {
   Listbox,
@@ -99,26 +36,20 @@ export const BranchSelectorPopover = () => {
   return (
     <Listbox value={selected} onChange={setSelected}>
       {({ open: menuOpen }) => (
-        <div className="relative w-full mb-4 cursor-pointer text-sidebar-foreground">
+        <div className="relative">
           <ListboxButton
             onClick={() => {
               setOpen(!open);
             }}
-            // className={`flex w-full items-center gap-x-2.5 rounded-md border border-gray-300 bg-white p-2 text-sm shadow-sm transition-all hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 hover:dark:bg-gray-900 focus:ring-2 focus:ring-indigo-200 focus:dark:ring-indigo-700/30 focus:border-indigo-500 focus:dark:border-indigo-700`}
-            className={`flex w-full items-center gap-x-2.5 rounded-md border border-gray-300 bg-white p-2 text-sm shadow-sm transition-all hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 hover:dark:bg-primary-900 focus:ring-2 focus:ring-primary focus:dark:ring-primary-700/30 cursor-pointer`}
+            className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer min-w-0"
           >
-              <span  className="flex aspect-square size-8 items-center justify-center rounded bg-primary p-2 text-xs font-medium text-primary-foreground">
-                {selected?.name.charAt(0)}
-              </span>
-            <div className="flex w-full items-center justify-between truncate">
-              <div className="truncate">
-                <p className="truncate whitespace-nowrap text-sm font-medium text-primary-900 dark:text-primary-50">{selected?.name}</p>
-                <p className="whitespace-nowrap text-left text-xs text-primary-foreground-700 dark:text-primary-foreground-300">
-                  {selected?.name}
-                </p>
-              </div>
-            </div>
-              <ChevronsUpDown className="w-4 h-4 ml-auto" />
+            {/* Avatar más pequeño */}
+            <span className="flex items-center justify-center w-6 h-6 rounded bg-orange-500 dark:bg-orange-400 text-xs font-medium text-white flex-shrink-0">
+              {selected?.name.charAt(0)}
+            </span>
+
+            {/* Chevron */}
+            <ChevronsUpDown className="w-3 h-3 text-gray-400 dark:text-gray-500 flex-shrink-0" />
           </ListboxButton>
 
           <Transition
@@ -128,27 +59,52 @@ export const BranchSelectorPopover = () => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <ListboxOptions className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-xl border border-primary py-2 shadow-lg ring-1 ring-black/5 focus:outline-none text-sm bg-background">
-              {mockOrganizations.map((org) =>
-                org.id !== selected?.id ? (
-                  <ListboxOption
-                    key={org.id}
-                    value={org}
-                    className={({ active }) =>
-                      `flex items-center gap-3 px-4 py-2 cursor-pointer ${
-                        active
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "text-sidebar-foreground"
-                      }`
-                    }
-                  >
-                    <span  className="flex aspect-square size-8 items-center justify-center rounded bg-primary p-2 text-xs font-medium text-primary-foreground">
-                      {org?.name.charAt(0)}
-                    </span>
-                    <span className="truncate">{org?.name}</span>
-                  </ListboxOption>
-                ) : null
-              )}
+            <ListboxOptions className="absolute right-0 z-50 mt-2 w-56 overflow-auto rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black/5 dark:ring-white/10 focus:outline-none">
+              {/* Header del dropdown */}
+              <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Organizations</p>
+              </div>
+
+              {mockOrganizations.map((org) => (
+                <ListboxOption
+                  key={org.id}
+                  value={org}
+                  className={({ active, selected: isSelected }) =>
+                    `flex items-center gap-3 px-3 py-2 cursor-pointer text-sm ${
+                      active
+                        ? "bg-gray-50 dark:bg-gray-700"
+                        : ""
+                    } ${isSelected ? "bg-teal-50 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300" : "text-gray-700 dark:text-gray-300"}`
+                  }
+                >
+                  {({ selected: isSelected }) => (
+                    <>
+                      <span className="flex items-center justify-center w-6 h-6 rounded bg-orange-500 dark:bg-orange-400 text-xs font-medium text-white flex-shrink-0">
+                        {org?.name.charAt(0)}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <span className="block truncate font-medium">{org?.name}</span>
+                        <span className="block truncate text-xs text-gray-500 dark:text-gray-400">{org?.name}</span>
+                      </div>
+                      {isSelected && (
+                        <svg className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </>
+                  )}
+                </ListboxOption>
+              ))}
+
+              {/* Footer con "New Organizations" */}
+              <div className="border-t border-gray-100 dark:border-gray-700 mt-1">
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-teal-600 dark:text-teal-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  New Organization
+                </button>
+              </div>
             </ListboxOptions>
           </Transition>
         </div>

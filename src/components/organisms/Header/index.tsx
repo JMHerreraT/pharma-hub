@@ -2,31 +2,27 @@
 import { SearchTrigger } from "@/components/molecules/SearchTrigger";
 import Notifications from "@/components/molecules/Notifications";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ThemeToggle } from "@/components/molecules/ThemeToggle";
+import { LanguageSelector } from "@/components/molecules/LanguageSelector";
 
 export function Header({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) {
   return (
-    <header className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-3 lg:py-4">
+    <header className="flex items-center justify-between px-4 sm:px-6 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
       {/* Left section with sidebar trigger */}
-      <div className="flex items-center gap-2 lg:gap-4">
+      <div className="flex items-center gap-3">
         <SidebarTrigger className="-ml-1" />
-        <div className="hidden sm:block lg:hidden">
-          <h1 className="text-lg font-semibold text-foreground">Pharmacy</h1>
-        </div>
       </div>
 
-      {/* Center search - responsive width */}
-      <div className="flex-1 max-w-lg mx-4 lg:mx-8">
-        <div className="w-full">
-          <SearchTrigger onOpen={() => setIsOpen(true)} />
-        </div>
+      {/* Center search - prominent and wide */}
+      <div className="flex-1 max-w-2xl mx-8">
+        <SearchTrigger onOpen={() => setIsOpen(true)} />
       </div>
 
-      {/* Right section - responsive spacing */}
-      <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
+      {/* Right section - clean icons */}
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
         <Notifications />
-        <div className="hidden sm:block">
-          {/* UserProfile podría estar aquí si es necesario */}
-        </div>
+        <LanguageSelector />
       </div>
     </header>
   );

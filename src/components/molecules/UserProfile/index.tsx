@@ -1,14 +1,6 @@
 "use client"
 
 import {
-  IconCreditCard,
-  IconDotsVertical,
-  IconLogout,
-  IconNotification,
-  IconUserCircle,
-} from "@tabler/icons-react"
-
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -22,12 +14,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
-import { User } from "@/types/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { BellIcon, CreditCardIcon, LogOutIcon, Monitor, Moon, MoreVertical, Sun, SunMoon, UserCircle } from "lucide-react"
 
 interface UserProfileProps {
-  user: User
+  user: any;
 }
 
 export function UserProfile({ user }: UserProfileProps) {

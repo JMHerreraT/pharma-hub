@@ -1,181 +1,291 @@
 // src/components/organisms/DonutChart/index.tsx
-"use client"
+import React, { useState, useMemo } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { createPortal } from 'react-dom';
 
-import { useState, useMemo } from "react"
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
-import { ChartDataItem, DonutChartProps } from "./types"
+interface DataItem {
+  name: string;
+  value: number;
+  color: string;
+}
 
-const defaultData: ChartDataItem[] = [
-  { name: "Purchases", value: 317100, percentage: 42, color: "#C7E9B4" },
-  { name: "Suppliers", value: 211400, percentage: 28, color: "#7FCDCD" },
-  { name: "Sales", value: 135900, percentage: 18, color: "#FFB3BA" },
-  { name: "No Sales", value: 90600, percentage: 12, color: "#E5E5E5", pattern: "diagonal-stripes" },
-]
+interface DonutChartProps {
+  data: DataItem[];
+  title?: string;
+  total?: number;
+}
 
-// Componente para etiquetas de porcentaje flotantes - Responsive
-const FloatingLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percentage }: {
-  cx: number;
-  cy: number;
-  midAngle: number;
-  innerRadius: number;
-  outerRadius: number;
-  percentage: number;
+const DonutChart: React.FC<DonutChartProps> = ({
+  data = [],
+  title = "Graph Report",
+  total
 }) => {
-  const RADIAN = Math.PI / 180;
-  const radius = innerRadius + (outerRadius - innerRadius) * 1.3;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [showTooltip, setShowTooltip] = useState(false);
 
-  // Responsive circle size
-  const circleRadius = typeof window !== 'undefined' && window.innerWidth < 640 ? 14 : 18;
+  // Calcular el total si no se proporciona
+  const calculatedTotal = useMemo(() => {
+    return total || data.reduce((sum, item) => sum + item.value, 0);
+  }, [data, total]);
 
-  return (
-    <g>
-      <circle
-        cx={x}
-        cy={y}
-        r={circleRadius}
-        fill="white"
-        stroke="#E5E7EB"
-        strokeWidth={1}
-        filter="drop-shadow(0 2px 8px rgba(0,0,0,0.15))"
-        className="dark:fill-gray-800 dark:stroke-gray-600"
-      />
-      <text
-        x={x}
-        y={y}
-        textAnchor="middle"
-        dominantBaseline="central"
-        className="text-xs sm:text-sm font-semibold fill-gray-900 dark:fill-white"
-      >
-        {`${percentage}%`}
-      </text>
-    </g>
-  );
-};
+  // Datos mejorados con patrones para "No Sales"
+  const enhancedData = useMemo(() => {
+    return data.map((item) => ({
+      ...item,
+      percentage: Math.round((item.value / calculatedTotal) * 100),
+      isPattern: item.name.toLowerCase().includes('no sales') || item.name.toLowerCase().includes('sin ventas')
+    }));
+  }, [data, calculatedTotal]);
 
-// Componente para la leyenda minimalista - Responsive
-const MinimalLegend = ({ data }: { data: ChartDataItem[] }) => (
-  <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 mt-4 sm:mt-6 md:mt-8 px-2">
-    {data.map((entry, index) => (
-      <div key={index} className="flex items-center gap-1.5 sm:gap-2">
-        <div
-          className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
-          style={{ backgroundColor: entry.color }}
-        />
-        <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium truncate">
-          {entry.name}
-        </span>
-      </div>
-    ))}
-  </div>
-);
-
-export default function DonutChart({
-  data = defaultData,
-  total = 755000,
-  title = "Business Metrics",
-  className = "",
-  size = "md",
-}: DonutChartProps) {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null)
-
+  // Dimensiones responsivas
   const chartDimensions = useMemo(() => {
-    // Responsive dimensions based on screen size
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-    const isTablet = typeof window !== 'undefined' && window.innerWidth < 768;
-
-    const sizes = {
-      sm: {
-        width: isMobile ? 250 : 300,
-        height: isMobile ? 250 : 300,
-        innerRadius: isMobile ? 60 : 80,
-        outerRadius: isMobile ? 100 : 120
-      },
-      md: {
-        width: isMobile ? 280 : isTablet ? 320 : 350,
-        height: isMobile ? 280 : isTablet ? 320 : 350,
-        innerRadius: isMobile ? 70 : isTablet ? 80 : 90,
-        outerRadius: isMobile ? 110 : isTablet ? 125 : 140
-      },
-      lg: {
-        width: isMobile ? 300 : isTablet ? 350 : 400,
-        height: isMobile ? 300 : isTablet ? 350 : 400,
-        innerRadius: isMobile ? 80 : isTablet ? 90 : 100,
-        outerRadius: isMobile ? 120 : isTablet ? 140 : 160
-      },
+    if (typeof window === 'undefined') {
+      return { width: 400, height: 400, innerRadius: 80, outerRadius: 140 };
     }
-    return sizes[size]
-  }, [size])
 
-  const formatTotal = (value: number) => {
-    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`
-    if (value >= 1000) return `${Math.round(value / 1000)}K`
-    return value.toString()
-  }
+    const width = window.innerWidth;
+    if (width < 640) { // sm
+      return { width: 280, height: 280, innerRadius: 60, outerRadius: 100 };
+    } else if (width < 768) { // md
+      return { width: 320, height: 320, innerRadius: 70, outerRadius: 115 };
+    } else { // lg+
+      return { width: 400, height: 400, innerRadius: 80, outerRadius: 140 };
+    }
+  }, []);
 
-  const onPieEnter = (_: unknown, index: number) => setActiveIndex(index)
-  const onPieLeave = () => setActiveIndex(null)
+  const handleMouseEnter = (e: React.MouseEvent, index: number) => {
+    setHoveredIndex(index);
+    setShowTooltip(true);
+    setMousePosition({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (showTooltip) {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredIndex(null);
+    setShowTooltip(false);
+  };
+
+  // Función para obtener la posición del label
+  const getLabelPosition = (cx: number, cy: number, midAngle: number, innerRadius: number, outerRadius: number) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.7;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    return { x, y };
+  };
+
+  // Renderizar etiquetas personalizadas
+  const renderCustomLabel = (entry: {
+    cx: number;
+    cy: number;
+    midAngle: number;
+    innerRadius: number;
+    outerRadius: number;
+    percentage: number;
+  }) => {
+    const { cx, cy, midAngle, innerRadius, outerRadius, percentage } = entry;
+    const { x, y } = getLabelPosition(cx, cy, midAngle, innerRadius, outerRadius);
+
+    if (percentage < 5) return null; // No mostrar labels muy pequeños
+
+    return (
+      <g>
+        <circle
+          cx={x}
+          cy={y}
+          r={18}
+          fill="white"
+          stroke="#e5e7eb"
+          strokeWidth={1}
+          className="drop-shadow-sm"
+        />
+        <text
+          x={x}
+          y={y}
+          dy={4}
+          textAnchor="middle"
+          fontSize="12"
+          fontWeight="600"
+          fill="#374151"
+        >
+          {percentage}%
+        </text>
+      </g>
+    );
+  };
+
+  // Tooltip personalizado
+  const CustomTooltip = () => {
+    if (!showTooltip || hoveredIndex === null) return null;
+
+    const data = enhancedData[hoveredIndex];
+    if (!data) return null;
+
+    return (
+      <div
+        className="fixed pointer-events-none z-[100000] transition-opacity duration-150"
+        style={{
+          left: `${mousePosition.x}px`,
+          top: `${mousePosition.y - 80}px`,
+          transform: 'translateX(-50%)'
+        }}
+      >
+        <div className="bg-gray-800 dark:bg-gray-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-gray-700">
+          <div className="text-sm text-gray-300 mb-1">Apr, 2025</div>
+          <div className="text-lg font-bold">${(data.value / 1000).toFixed(2)}K</div>
+          <div className="text-xs text-gray-400 mt-1">{data.name}</div>
+        </div>
+        {/* Arrow */}
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+          <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-gray-800 dark:border-t-gray-900"></div>
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className={`w-full h-full flex flex-col ${className}`}>
-      {title && (
-        <div className="text-center mb-3 sm:mb-4 md:mb-6 px-2">
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white line-clamp-2">{title}</h3>
-        </div>
-      )}
+    <div className="w-full h-full flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+          {title}
+        </h3>
+        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <div className="w-5 h-5 flex items-center justify-center">
+            <div className="w-1 h-1 bg-gray-400 rounded-full mx-0.5"></div>
+            <div className="w-1 h-1 bg-gray-400 rounded-full mx-0.5"></div>
+            <div className="w-1 h-1 bg-gray-400 rounded-full mx-0.5"></div>
+          </div>
+        </button>
+      </div>
 
-      <div className="flex-1 flex items-center justify-center px-2">
-        <div className="relative">
+      {/* Chart Container */}
+      <div className="flex-1 flex flex-col items-center justify-center">
+        <div
+          className="relative"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
           <ResponsiveContainer width={chartDimensions.width} height={chartDimensions.height}>
             <PieChart>
+              {/* Fondo gris completo */}
               <Pie
-                data={data}
+                data={[{ value: 100 }]}
+                cx="50%"
+                cy="50%"
+                innerRadius={chartDimensions.innerRadius}
+                outerRadius={chartDimensions.outerRadius}
+                fill="#e5e7eb"
+                dataKey="value"
+                startAngle={90}
+                endAngle={450}
+                strokeWidth={0}
+              />
+
+              {/* Datos principales con segmentos redondeados */}
+              <Pie
+                data={enhancedData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={FloatingLabel}
+                label={renderCustomLabel}
                 outerRadius={chartDimensions.outerRadius}
                 innerRadius={chartDimensions.innerRadius}
+                fill="#8884d8"
                 dataKey="value"
-                cornerRadius={0}
-                paddingAngle={4}
-                onMouseEnter={onPieEnter}
-                onMouseLeave={onPieLeave}
-                role="img"
-                aria-label={`Donut chart showing ${title} breakdown`}
+                startAngle={90}
+                endAngle={450}
+                strokeWidth={4}
+                stroke="white"
+                cornerRadius={8}
               >
-                {data.map((entry, index) => (
+                {enhancedData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={entry.color}
-                    stroke="white"
-                    strokeWidth={3}
+                    fill={entry.isPattern ? `url(#pattern-${index})` : entry.color}
+                    onMouseEnter={(e: React.MouseEvent) => handleMouseEnter(e, index)}
                     style={{
-                      filter: activeIndex === index ? "brightness(1.05)" : "none",
-                      transition: "all 0.2s ease-in-out",
+                      cursor: 'pointer',
+                      filter: hoveredIndex === index ? 'brightness(1.1)' : 'none',
+                      transition: 'filter 0.2s ease'
                     }}
                   />
                 ))}
               </Pie>
-              <Tooltip />
+
+              {/* Patrones para elementos rayados */}
+              <defs>
+                {enhancedData.map((entry, index) =>
+                  entry.isPattern && (
+                    <pattern
+                      key={`pattern-${index}`}
+                      id={`pattern-${index}`}
+                      patternUnits="userSpaceOnUse"
+                      width="8"
+                      height="8"
+                      patternTransform="rotate(45)"
+                    >
+                      <rect width="8" height="8" fill={entry.color} />
+                      <rect width="4" height="8" fill="white" opacity="0.3" />
+                    </pattern>
+                  )
+                )}
+              </defs>
             </PieChart>
           </ResponsiveContainer>
 
-          {/* Total en el centro - Responsive */}
+          {/* Centro con total */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center px-2">
-              <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">Total</p>
-              <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">{formatTotal(total)}</p>
+            <div className="text-center">
+              <div className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-1">
+                Total
+              </div>
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+                {calculatedTotal >= 1000
+                  ? `${Math.round(calculatedTotal / 1000)}K`
+                  : calculatedTotal.toLocaleString()
+                }
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Leyenda moderna */}
+        <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-md">
+          {enhancedData.map((item, index) => (
+            <div key={index} className="flex items-center gap-2 sm:gap-3">
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
+                style={{
+                  backgroundColor: item.isPattern ? '#9ca3af' : item.color,
+                  backgroundImage: item.isPattern
+                    ? `repeating-linear-gradient(45deg, ${item.color}, ${item.color} 2px, white 2px, white 4px)`
+                    : 'none'
+                }}
+              />
+              <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
+                {item.name}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Leyenda minimalista */}
-      <MinimalLegend data={data} />
+      {/* Tooltip */}
+      {typeof window !== 'undefined' && createPortal(
+        <CustomTooltip />,
+        document.body
+      )}
     </div>
-  )
-}
+  );
+};
+
+export default DonutChart;
 
 

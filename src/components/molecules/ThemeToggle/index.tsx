@@ -3,35 +3,50 @@
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { Sun, Moon } from "lucide-react"
-import { Switch } from "@/components/ui/switch"
+import { Button } from "@/components/ui/button"
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
-  const [checked, setChecked] = useState(false);
+  const [mounted, setMounted] = useState(false)
 
   const isDark = theme === "dark"
 
-  const toggleTheme = (value: boolean) => {
-    if (isDark) {
-      setTheme("light")
-      setChecked(false)
-    } else {
-      setTheme("dark")
-      setChecked(true)
-    }
+  // Evitar hidration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-9 w-9 p-0 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+      >
+        <Sun className="h-4 w-4" />
+        <span className="sr-only">Toggle theme</span>
+      </Button>
+    )
+  }
+
+  const toggleTheme = () => {
+    setTheme(isDark ? "light" : "dark")
   }
 
   return (
-    <div className="flex items-center space-x-3">
-      <Sun className="size-4" />
-      <Switch
-        checked={checked}
-        onCheckedChange={(value) => {
-          toggleTheme(value);
-        }}
-        aria-label="Toggle theme"
-      />
-      <Moon className="size-4" />
-    </div>
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-9 w-9 p-0 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+      onClick={toggleTheme}
+      aria-label="Toggle theme"
+    >
+      {isDark ? (
+        <Sun className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+      ) : (
+        <Moon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+      )}
+      <span className="sr-only">Toggle theme</span>
+    </Button>
   )
 }

@@ -78,18 +78,29 @@ const HomePage = () => {
         }
     ];
 
-    // Datos para el DonutChart - similar al vendor breakdown de la imagen
-    const vendorBreakdownData = [
-        { name: "Purchases", value: 456000, percentage: 42, color: "#C7E9B4" },
-        { name: "Suppliers", value: 284000, percentage: 28, color: "#7FCDCD" },
-        { name: "Sales", value: 152000, percentage: 18, color: "#FFB3BA" },
-        { name: "No Sales", value: 122000, percentage: 12, color: "#E5E5E5", pattern: "diagonal-stripes" },
+    // Data para el DonutChart con colores exactos de la imagen
+    const donutData = [
+        {
+            name: "Purchases",
+            value: 317100,
+            color: "#C6F279" // Verde claro/lima
+        },
+        {
+            name: "Suppliers",
+            value: 211400,
+            color: "#8DD3C7" // Verde agua/mint
+        },
+        {
+            name: "Sales",
+            value: 135900,
+            color: "#FFB3BA" // Rosa suave
+        },
+        {
+            name: "No Sales",
+            value: 90600,
+            color: "#D1D5DB" // Gris para el patrón rayado
+        },
     ];
-
-    const [selectedMonth, setSelectedMonth] = React.useState({
-        label: 'Agosto 2024',
-        value: '8-2024'
-    });
 
     return (
         <div className="flex flex-col gap-4 sm:gap-6 h-full">
@@ -154,8 +165,6 @@ const HomePage = () => {
                         <div className="w-full h-full min-h-[280px] sm:min-h-[320px] flex items-stretch">
                             <ChartTest
                                 data={mockChartData}
-                                selectedMonth={selectedMonth}
-                                setSelectedMonth={setSelectedMonth}
                             />
                         </div>
                     </CardContent>
@@ -177,11 +186,8 @@ const HomePage = () => {
                     <CardContent className="h-full flex items-center justify-center p-2 sm:p-4">
                         <div className="w-full h-full min-h-[280px] sm:min-h-[320px]">
                             <DonutChart
-                                data={vendorBreakdownData}
-                                total={1014000}
-                                title=""
-                                size="md"
-                                className="h-full"
+                                data={donutData}
+                                title="Graph Report"
                             />
                         </div>
                     </CardContent>
