@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import { BarChart, Boxes, Home, Package, Users, ChevronDown, FileText, Mail, UserPlus, HeadphonesIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
