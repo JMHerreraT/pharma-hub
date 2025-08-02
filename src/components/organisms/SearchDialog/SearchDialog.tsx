@@ -265,42 +265,42 @@ const SearchDialog = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (isOp
     <Dialog open={isOpen} onOpenChange={setIsOpen} modal>
       <DialogContent
         showCloseButton={false}
-        className="fixed left-[50%] top-[50%] z-50 grid w-[95vw] max-w-2xl translate-x-[-50%] translate-y-[-50%] gap-0 border bg-background text-foreground p-0 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 rounded-2xl overflow-hidden sm:w-[85vw] md:w-[75vw] lg:w-[65vw] xl:w-[55vw] 2xl:w-[50vw] max-h-[90vh] sm:max-h-[85vh] md:max-h-[80vh]"
+        className="p-0 gap-0 rounded-2xl overflow-hidden max-h-[90vh] sm:max-h-[85vh] md:max-h-[80vh] overflow-x-hidden"
       >
         <DialogHeader className="sr-only">
           <DialogTitle>Search</DialogTitle>
         </DialogHeader>
 
         {/* Header with title and close button */}
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h2 className="text-sm font-medium text-muted-foreground">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3 min-w-0">
+          <h2 className="text-sm font-medium text-muted-foreground truncate">
             Búsqueda y Comandos
           </h2>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
-            className="h-8 w-8 p-0 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground"
+            className="h-8 w-8 p-0 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground flex-shrink-0"
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
 
         {/* Search Input */}
-        <div className="border-b border-border p-4">
+        <div className="border-b border-border p-4 min-w-0">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               placeholder="Buscar o escribir un comando..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 h-14 text-base bg-transparent border-0 text-foreground placeholder:text-muted-foreground focus:ring-0 focus:border-transparent"
+              className="pl-12 h-14 text-base bg-transparent border-0 text-foreground placeholder:text-muted-foreground focus:ring-0 focus:border-transparent w-full"
               autoFocus
             />
           </div>
 
           {/* Category filters */}
-          <div className="flex gap-2 mt-4">
+          <div className="flex flex-wrap gap-2 mt-4 max-w-full">
             {categories.map((category) => {
               const Icon = category.icon
               return (
@@ -309,14 +309,14 @@ const SearchDialog = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (isOp
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`h-8 px-3 rounded-lg border transition-all ${
+                  className={`h-8 px-3 rounded-lg border transition-all flex-shrink-0 ${
                     selectedCategory === category.id
                       ? 'bg-accent border-border text-foreground'
                       : 'border-border text-muted-foreground hover:bg-accent hover:text-foreground hover:border-border'
                   }`}
                 >
                   <Icon className="h-3 w-3 mr-2" />
-                  {category.name}
+                  <span className="whitespace-nowrap">{category.name}</span>
                 </Button>
               )
             })}
@@ -324,9 +324,9 @@ const SearchDialog = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (isOp
         </div>
 
         {/* Results */}
-        <div className="max-h-[60vh] overflow-y-auto">
+        <div className="max-h-[60vh] overflow-y-auto overflow-x-hidden">
           {Object.entries(groupedItems).map(([groupName, items]) => (
-            <div key={groupName} className="p-4 border-b border-border last:border-b-0">
+            <div key={groupName} className="p-4 border-b border-border last:border-b-0 min-w-0">
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
                 {groupName}
               </h3>
@@ -343,22 +343,22 @@ const SearchDialog = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (isOp
                     <div
                       key={item.id}
                       onClick={() => handleSelect(item)}
-                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
+                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all min-w-0 ${
                         isSelected
                           ? 'bg-accent border border-border'
                           : 'hover:bg-accent/50'
                       }`}
                     >
-                      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted border border-border">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted border border-border flex-shrink-0">
                         <Icon className="h-5 w-5 text-muted-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
                           <span className="text-sm font-medium text-foreground truncate">
                             {item.title}
                           </span>
                           {item.badge && (
-                            <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-xs">
+                            <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-xs flex-shrink-0">
                               {item.badge}
                             </Badge>
                           )}
@@ -369,16 +369,18 @@ const SearchDialog = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (isOp
                           </p>
                         )}
                       </div>
-                      {item.shortcut && (
-                        <div className="flex items-center gap-1">
-                          <kbd className="inline-flex h-6 px-2 items-center justify-center rounded bg-muted border border-border font-mono text-xs text-muted-foreground">
-                            {item.shortcut}
-                          </kbd>
-                        </div>
-                      )}
-                      {item.url && !item.shortcut && (
-                        <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-                      )}
+                      <div className="flex-shrink-0">
+                        {item.shortcut && (
+                          <div className="flex items-center gap-1">
+                            <kbd className="inline-flex h-6 px-2 items-center justify-center rounded bg-muted border border-border font-mono text-xs text-muted-foreground">
+                              {item.shortcut}
+                            </kbd>
+                          </div>
+                        )}
+                        {item.url && !item.shortcut && (
+                          <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
                     </div>
                   )
                 })}
