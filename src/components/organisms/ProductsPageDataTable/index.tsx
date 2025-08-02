@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DataTableCellViewer } from '@/components/organisms/DataTableCellViewer';
+import ProductAvatar from "@/components/molecules/ProductAvatar"
 
 export const schema = z.object({
     id: z.number(),
@@ -23,6 +24,7 @@ export const schema = z.object({
     target: z.string(),
     limit: z.string(),
     reviewer: z.string(),
+    image: z.string().optional(),
   });
 
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
@@ -64,23 +66,32 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           const item = row.original;
 
           return (
-            <DataTableCellViewer
-              triggerText={item.header}
-              title={`Editar ${item.header}`}
-              description="Actualizar información del producto"
-              onSubmit={() => console.log("¡Enviar actualización del producto!")}
-            >
-              <form className="flex flex-col gap-4">
-                <div>
-                  <Label htmlFor="type">Categoría</Label>
-                  <Input id="type" defaultValue={item.type} />
-                </div>
-                <div>
-                  <Label htmlFor="status">Estado</Label>
-                  <Input id="status" defaultValue={item.status} />
-                </div>
-              </form>
-            </DataTableCellViewer>
+            <div className="flex items-center gap-3 min-w-0">
+              <ProductAvatar
+                src={item.image}
+                alt={item.header}
+                size="md"
+              />
+              <div className="min-w-0 flex-1">
+                <DataTableCellViewer
+                  triggerText={item.header}
+                  title={`Editar ${item.header}`}
+                  description="Actualizar información del producto"
+                  onSubmit={() => console.log("¡Enviar actualización del producto!")}
+                >
+                  <form className="flex flex-col gap-4">
+                    <div>
+                      <Label htmlFor="type">Categoría</Label>
+                      <Input id="type" defaultValue={item.type} />
+                    </div>
+                    <div>
+                      <Label htmlFor="status">Estado</Label>
+                      <Input id="status" defaultValue={item.status} />
+                    </div>
+                  </form>
+                </DataTableCellViewer>
+              </div>
+            </div>
           );
         },
         enableHiding: false,

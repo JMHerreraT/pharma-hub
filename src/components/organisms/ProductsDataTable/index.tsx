@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DataTableCellViewer } from '../DataTableCellViewer';
+import ProductAvatar from '@/components/molecules/ProductAvatar';
 
 export const schema = z.object({
     id: z.number(),
@@ -23,6 +24,7 @@ export const schema = z.object({
     target: z.string(),
     limit: z.string(),
     reviewer: z.string(),
+    image: z.string().optional(),
   });
 
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
@@ -59,35 +61,44 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     },
     {
         accessorKey: "header",
-        header: "Header",
+        header: "Nombre del Producto",
         cell: ({ row }) => {
           const item = row.original;
 
           return (
-            <DataTableCellViewer
-              triggerText={item.header}
-              title={`Edit ${item.header}`}
-              description="Update section info"
-              onSubmit={() => console.log("Submit!")}
-            >
-              <form className="flex flex-col gap-4">
-                <div>
-                  <Label htmlFor="type">Type</Label>
-                  <Input id="type" defaultValue={item.type} />
-                </div>
-                <div>
-                  <Label htmlFor="status">Status</Label>
-                  <Input id="status" defaultValue={item.status} />
-                </div>
-              </form>
-            </DataTableCellViewer>
+            <div className="flex items-center gap-3 min-w-0">
+              <ProductAvatar
+                src={item.image}
+                alt={item.header}
+                size="md"
+              />
+              <div className="min-w-0 flex-1">
+                <DataTableCellViewer
+                  triggerText={item.header}
+                  title={`Editar ${item.header}`}
+                  description="Actualizar información del producto"
+                  onSubmit={() => console.log("¡Enviar actualización del producto!")}
+                >
+                  <form className="flex flex-col gap-4">
+                    <div>
+                      <Label htmlFor="type">Categoría</Label>
+                      <Input id="type" defaultValue={item.type} />
+                    </div>
+                    <div>
+                      <Label htmlFor="status">Estado</Label>
+                      <Input id="status" defaultValue={item.status} />
+                    </div>
+                  </form>
+                </DataTableCellViewer>
+              </div>
+            </div>
           );
         },
         enableHiding: false,
       },
     {
       accessorKey: "type",
-      header: "Section Type",
+      header: "Categoría",
       cell: ({ row }) => (
         <div className="w-32">
           <Badge variant="outline" className="px-1.5 text-muted-foreground">
@@ -98,7 +109,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: "Estado",
       cell: ({ row }) => (
         <Badge
           variant="outline"
@@ -115,57 +126,58 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     },
     {
       accessorKey: "target",
-      header: () => <div className="w-full text-right">Target</div>,
+      header: () => <div className="w-full text-right">Stock</div>,
       cell: ({ row }) => (
         <form
           onSubmit={(e) => {
             e.preventDefault()
             toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-              loading: `Saving ${row.original.header}`,
-              success: "Done",
-              error: "Error",
+              loading: `Actualizando stock de ${row.original.header}`,
+              success: "Stock actualizado exitosamente",
+              error: "Error al actualizar el stock",
             })
           }}
         >
-          <Label htmlFor={`${row.original.id}-target`} className="sr-only">
-            Target
+          <Label htmlFor={`${row.original.id}-stock`} className="sr-only">
+            Stock
           </Label>
           <Input
             className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
             defaultValue={row.original.target}
-            id={`${row.original.id}-target`}
+            id={`${row.original.id}-stock`}
+            type="number"
           />
         </form>
       ),
     },
     {
       accessorKey: "limit",
-      header: () => <div className="w-full text-right">Limit</div>,
+      header: () => <div className="w-full text-right">Precio</div>,
       cell: ({ row }) => (
         <form
           onSubmit={(e) => {
             e.preventDefault()
             toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-              loading: `Saving ${row.original.header}`,
-              success: "Done",
-              error: "Error",
+              loading: `Actualizando precio de ${row.original.header}`,
+              success: "Precio actualizado exitosamente",
+              error: "Error al actualizar el precio",
             })
           }}
         >
-          <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
-            Limit
+          <Label htmlFor={`${row.original.id}-price`} className="sr-only">
+            Precio
           </Label>
           <Input
-            className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
-            defaultValue={row.original.limit}
-            id={`${row.original.id}-limit`}
+            className="h-8 w-20 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
+            defaultValue={`$${row.original.limit}`}
+            id={`${row.original.id}-price`}
           />
         </form>
       ),
     },
     {
       accessorKey: "reviewer",
-      header: "Reviewer",
+      header: "Proveedor",
       cell: ({ row }) => {
         const isAssigned = row.original.reviewer !== "Assign reviewer"
 
@@ -175,21 +187,20 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
 
         return (
           <>
-            <Label htmlFor={`${row.original.id}-reviewer`} className="sr-only">
-              Reviewer
+            <Label htmlFor={`${row.original.id}-supplier`} className="sr-only">
+              Proveedor
             </Label>
             <Select>
               <SelectTrigger
                 className="h-8 w-40"
-                id={`${row.original.id}-reviewer`}
+                id={`${row.original.id}-supplier`}
               >
-                <SelectValue placeholder="Assign reviewer" />
+                <SelectValue placeholder="Seleccionar proveedor" />
               </SelectTrigger>
               <SelectContent align="end">
-                <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-                <SelectItem value="Jamik Tashpulatov">
-                  Jamik Tashpulatov
-                </SelectItem>
+                <SelectItem value="MedSupply Co">MedSupply Co</SelectItem>
+                <SelectItem value="PharmaCorp">PharmaCorp</SelectItem>
+                <SelectItem value="HealthDistributors">HealthDistributors</SelectItem>
               </SelectContent>
             </Select>
           </>
