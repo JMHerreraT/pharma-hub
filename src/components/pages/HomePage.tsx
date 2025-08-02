@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import ProductsDataTable from '../organisms/ProductsDataTable';
 import ChartTest from '../organisms/ChartTest';
 import DonutChart from '../organisms/DonutChart';
@@ -107,103 +107,113 @@ const HomePage = () => {
             {/* Pharmacy metrics cards - Responsive grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
                 <MetricCard
-                    title="Today's Sales"
+                    title="Ventas de Hoy"
                     value="$95.00"
-                    change="2.5%"
+                    change="+2.5%"
                     changeType="positive"
-                    period="This Month"
+                    period="Este Mes"
                     icon={<DollarSign size={20} />}
                     color="green"
                     className="min-h-[140px] sm:min-h-[160px]"
                 />
 
                 <MetricCard
-                    title="Available Categories"
-                    value="1.457%"
-                    change="2.5%"
+                    title="Categorías Disponibles"
+                    value="1,457%"
+                    change="+12.5%"
                     changeType="positive"
-                    period="This Month"
+                    period="Este Mes"
                     icon={<Grid3X3 size={20} />}
                     color="teal"
                     className="min-h-[140px] sm:min-h-[160px]"
                 />
 
                 <MetricCard
-                    title="Expired Medicines"
-                    value="0.00%"
-                    change="2.5%"
-                    changeType="positive"
-                    period="This Month"
+                    title="Medicinas en Stock"
+                    value="967"
+                    change="-2.1%"
+                    changeType="negative"
+                    period="Este Mes"
                     icon={<AlertCircle size={20} />}
                     color="red"
                     className="min-h-[140px] sm:min-h-[160px]"
                 />
 
                 <MetricCard
-                    title="System Users"
+                    title="Usuarios del Sistema"
                     value="255K"
-                    change="2.5%"
+                    change="+2.5%"
                     changeType="positive"
-                    period="This Month"
+                    period="Este Mes"
                     icon={<Users size={20} />}
                     color="purple"
                     className="min-h-[140px] sm:min-h-[160px]"
                 />
             </div>
 
-            {/* Main charts section - Responsive layout */}
-            <div className="flex gap-3 sm:gap-4 flex-1 min-h-[350px] sm:min-h-[400px] flex-col xl:flex-row">
-                {/* Left chart - Student Statistics */}
-                <Card className="flex-1 min-h-[350px] sm:min-h-[400px]">
-                    <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
-                        <CardTitle className="text-base sm:text-lg">Estadísticas de Estudiantes</CardTitle>
-                        <CardDescription className="text-xs sm:text-sm">
-                            Análisis mensual de pagos y morosidad
-                        </CardDescription>
+            {/* Sección de Gráficos principales */}
+            <div className="flex flex-col xl:flex-row gap-4 sm:gap-6">
+                {/* Gráfico de estudiantes - Lado izquierdo */}
+                <Card className="flex-1 min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <div>
+                            <CardTitle className="text-base sm:text-lg md:text-xl font-semibold">
+                                Estadísticas de Estudiantes
+                            </CardTitle>
+                            <CardDescription className="text-xs sm:text-sm text-muted-foreground">
+                                Análisis mensual de pagos y morosidad
+                            </CardDescription>
+                        </div>
                     </CardHeader>
-                    <CardContent className="flex-1 p-2 sm:p-4">
-                        <div className="w-full h-full min-h-[280px] sm:min-h-[320px] flex items-stretch">
+                    <CardContent className="pt-4 sm:pt-6 flex-1">
+                        <div className="w-full h-full min-h-[250px] sm:min-h-[300px] md:min-h-[400px]">
                             <ChartTest
                                 data={mockChartData}
+                                isLoading={false}
                             />
                         </div>
                     </CardContent>
-                    <CardFooter className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
-                        <p className="text-xs sm:text-sm text-muted-foreground">
-                            Distribución de estudiantes con pagos completos vs pendientes
-                        </p>
-                    </CardFooter>
                 </Card>
 
-                {/* Right chart - Vendor Breakdown */}
-                <Card className="flex-1 min-h-[350px] sm:min-h-[400px]">
-                    <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
-                        <CardTitle className="text-base sm:text-lg">Graph Report</CardTitle>
-                        <CardDescription className="text-xs sm:text-sm">
-                            Distribución de métricas de negocio
+                {/* DonutChart - Lado derecho */}
+                <Card className="flex-1 min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
+                    <CardHeader>
+                        <CardTitle className="text-base sm:text-lg md:text-xl font-semibold">
+                            Distribución de Métricas
+                        </CardTitle>
+                        <CardDescription className="text-xs sm:text-sm text-muted-foreground">
+                            Resumen de categorías principales
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="h-full flex items-center justify-center p-2 sm:p-4">
+                    <CardContent className="pt-4 sm:pt-6 flex-1">
                         <div className="w-full h-full min-h-[280px] sm:min-h-[320px]">
                             <DonutChart
                                 data={donutData}
-                                title="Graph Report"
+                                title="Reporte Gráfico"
                             />
                         </div>
                     </CardContent>
-                    <CardFooter className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
-                        <p className="text-xs sm:text-sm text-muted-foreground">
-                            Análisis detallado de categorías de rendimiento
-                        </p>
-                    </CardFooter>
                 </Card>
             </div>
 
             {/* Data table section - Responsive */}
-            <div className="flex-shrink-0 min-h-0">
-                <div className="overflow-x-auto">
-                    <ProductsDataTable />
-                </div>
+            <div className="flex-shrink-0 min-h-0 mb-2">
+                {/* Tabla de Productos */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base sm:text-lg md:text-xl font-semibold">
+                            Lista de Productos
+                        </CardTitle>
+                        <CardDescription className="text-xs sm:text-sm text-muted-foreground">
+                            Gestión y seguimiento del inventario
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="overflow-x-auto px-4">
+                            <ProductsDataTable />
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     )

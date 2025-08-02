@@ -43,7 +43,7 @@ export function LanguageSelector() {
             {/* Header */}
             <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700">
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Languages
+                Idiomas
               </p>
             </div>
 

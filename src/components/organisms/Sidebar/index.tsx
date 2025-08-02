@@ -52,78 +52,78 @@ const data = {
   versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
   navMain: [
     {
-      title: "Main Menu",
+      title: "Menú Principal",
       url: "#",
       collapsible: false,
       items: [
         {
-          title: "Dashboard",
+          title: "Panel de Control",
           icon: Home,
           url: "/dashboard",
         },
         {
-          title: "Products",
+          title: "Productos",
           icon: Package,
           url: "/dashboard/products",
         },
         {
-          title: "Orders",
+          title: "Pedidos",
           icon: Boxes,
           url: "/dashboard/orders",
         },
         {
-          title: "Notes",
+          title: "Notas",
           icon: FileText,
           url: "/dashboard/notes",
         },
         {
-          title: "Emails",
+          title: "Correos",
           icon: Mail,
           url: "/dashboard/emails",
         },
         {
-          title: "Reports",
+          title: "Reportes",
           icon: BarChart,
           url: "/dashboard/reports",
         },
       ],
     },
     {
-      title: "Favorites",
+      title: "Favoritos",
       url: "#",
       collapsible: true,
       defaultOpen: false,
       items: [
         {
-          title: "Analytics Dashboard",
+          title: "Panel de Análisis",
           icon: BarChart,
           url: "/dashboard/analytics",
         },
         {
-          title: "Customer Portal",
+          title: "Portal de Clientes",
           icon: Users,
           url: "/dashboard/customers",
         },
         {
-          title: "Inventory System",
+          title: "Sistema de Inventario",
           icon: Package,
           url: "/dashboard/inventory",
         }
       ],
     },
     {
-      title: "Records",
+      title: "Registros",
       url: "#",
       collapsible: true,
       defaultOpen: false,
       items: [
         {
-          title: "Sales Records",
+          title: "Registros de Ventas",
           icon: BarChart,
           url: "/dashboard/sales-records",
         },
         {
-          title: "Customer Data",
+          title: "Datos de Clientes",
           icon: Users,
           url: "/dashboard/customer-data",
         }
@@ -137,8 +137,16 @@ export function SidebarComponent({ ...props }: React.ComponentProps<typeof Sideb
 
   // Función para determinar si un item está activo
   const isItemActive = (itemUrl: string) => {
-    if (itemUrl === "/" && pathname === "/") return true
-    if (itemUrl !== "/" && pathname.startsWith(itemUrl)) return true
+    // Siempre priorizar coincidencias exactas
+    if (pathname === itemUrl) return true
+
+    // Para /dashboard, solo activar si es exactamente esa ruta
+    if (itemUrl === "/dashboard") {
+      return pathname === "/dashboard"
+    }
+
+    // Para otras rutas, no activar rutas padre
+    // Solo activar si es la ruta exacta
     return false
   }
 
@@ -290,22 +298,22 @@ export function SidebarComponent({ ...props }: React.ComponentProps<typeof Sideb
             className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-all duration-200"
           >
             <UserPlus className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-            <span>Invite teammates</span>
+            <span>Invitar compañeros</span>
           </Link>
           <Link
             href="/support"
             className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-all duration-200"
           >
             <HeadphonesIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-            <span>Support</span>
+            <span>Soporte</span>
           </Link>
         </div>
 
         {/* Free trial progress */}
         <div className="mb-4 px-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Free trial</span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">8/15 Days</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Prueba gratuita</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">8/15 Días</span>
           </div>
           <Progress value={53} className="h-2" />
         </div>

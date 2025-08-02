@@ -17,7 +17,7 @@ interface DonutChartProps {
 
 const DonutChart: React.FC<DonutChartProps> = ({
   data = [],
-  title = "Graph Report",
+  title = "Reporte Gráfico",
   total
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);

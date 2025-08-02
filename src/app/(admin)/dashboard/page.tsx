@@ -6,10 +6,10 @@ export default function DashboardPage() {
         <div className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              Bienvenido de nuevo! ✋
+              ¡Bienvenido de nuevo! ✋
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Here&apos;s a summary of your pharmacy sales.
+              Aquí tienes un resumen de las ventas de tu farmacia.
             </p>
           </div>
 
