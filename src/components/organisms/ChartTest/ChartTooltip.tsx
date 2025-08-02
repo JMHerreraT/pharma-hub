@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 interface Props {
@@ -20,7 +20,12 @@ const ChartTooltip = ({
 }: Props) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isClient, setIsClient] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleMouseEnter = useCallback(() => {
     setIsVisible(true);
@@ -128,7 +133,7 @@ const ChartTooltip = ({
     >
       {children}
 
-      {typeof window !== 'undefined' && createPortal(
+      {isClient && typeof window !== 'undefined' && createPortal(
         <TooltipContent />,
         document.body
       )}

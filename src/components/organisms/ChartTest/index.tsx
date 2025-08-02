@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import ChartTooltip from './ChartTooltip';
@@ -16,6 +17,12 @@ interface ChartTestProps {
 }
 
 const ChartTest = ({ data, isLoading }: ChartTestProps) => {
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const labels = {
     1: ['Ene', 'Enero'],
     2: ['Feb', 'Febrero'],
@@ -87,6 +94,17 @@ const ChartTest = ({ data, isLoading }: ChartTestProps) => {
     );
   }
 
+  // Helper function to get min height based on screen size
+  const getMinHeight = () => {
+    if (!isClient) return '120px'; // Default for SSR
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 640) return '80px';
+      if (window.innerWidth < 768) return '100px';
+      return '120px';
+    }
+    return '120px'; // Fallback
+  };
+
   return (
     <div className="flex w-full h-full pt-4 sm:pt-6 md:pt-8 justify-between min-h-[300px] sm:min-h-[350px] rounded-lg p-3 sm:p-4 md:p-6">
       <div className="flex flex-col gap-4 sm:gap-6 md:gap-8 items-center justify-between py-2 sm:py-4 flex-shrink-0">
@@ -136,7 +154,7 @@ const ChartTest = ({ data, isLoading }: ChartTestProps) => {
                         style={{
                           height: `${heightPercent}%`,
                           background: barStyle.pattern,
-                          minHeight: heightPercent > 0 ? (typeof window !== 'undefined' && window.innerWidth < 640 ? '80px' : window.innerWidth < 768 ? '100px' : '120px') : '40px'
+                          minHeight: heightPercent > 0 ? getMinHeight() : '40px'
                         }}
                       >
                         {/* Overlay para efecto hover */}
