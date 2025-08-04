@@ -1,11 +1,11 @@
 "use client"
 
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import ProductsDataTable from '../organisms/ProductsDataTable';
-import ChartTest from '../organisms/ChartTest';
-import DonutChart from '../organisms/DonutChart';
-import MetricCard from '../organisms/MetricCard';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import MetricCard from '../organisms/MetricCard'
+import ChartTest from '../organisms/ChartTest'
+import DonutChart from '../organisms/DonutChart'
+import ProductsPageDataTable from '../organisms/ProductsPageDataTable'
 import { DollarSign, Grid3X3, AlertCircle, Users } from 'lucide-react';
 
 export type User = {
@@ -210,7 +210,7 @@ const HomePage = () => {
                     </CardHeader>
                     <CardContent className="p-0">
                         <div className="overflow-x-auto px-4">
-                            <ProductsDataTable />
+                            <ProductsPageDataTable />
                         </div>
                     </CardContent>
                 </Card>
