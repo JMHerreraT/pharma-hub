@@ -1,10 +1,10 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, Suspense } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import {
   Activity,
   Search,
@@ -16,7 +16,10 @@ import {
   Zap
 } from "lucide-react"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
-import ActivityDataTable from "@/components/organisms/ActivityDataTable"
+import DataTableSkeleton from "@/components/atoms/DataTableSkeleton"
+
+// Lazy load ActivityDataTable
+const LazyActivityDataTable = React.lazy(() => import('@/components/organisms/LazyActivityDataTable'))
 
 // Mock data de actividades
 const activitiesData = [
@@ -96,7 +99,7 @@ const activitiesData = [
 
 export function ActivityPage() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [activeTab, setActiveTab] = useState("all")
+  const [activeTab] = useState("all")
 
   const filteredActivities = activitiesData.filter(activity => {
     const matchesSearch = activity.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -259,21 +262,23 @@ export function ActivityPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-        <ActivityDataTable
-                activities={filteredActivities.map((activity, index) => ({
-                  id: index + 1,
-                  activityId: activity.activityId,
-                  type: activity.type,
-                  user: activity.user,
-                  action: activity.action,
-                  timestamp: activity.timestamp,
-                  details: activity.details,
-                  status: activity.status,
-                }))}
-                enableRowsPerPage={true}
-                enablePagination={true}
-                defaultItemsToShow={10}
-              />
+          <Suspense fallback={<DataTableSkeleton rows={10} columns={6} showHeader={false} />}>
+            <LazyActivityDataTable
+              activities={filteredActivities.map((activity, index) => ({
+                id: index + 1,
+                activityId: activity.activityId,
+                type: activity.type,
+                user: activity.user,
+                action: activity.action,
+                timestamp: activity.timestamp,
+                details: activity.details,
+                status: activity.status,
+              }))}
+              enableRowsPerPage={true}
+              enablePagination={true}
+              defaultItemsToShow={10}
+            />
+          </Suspense>
         </CardContent>
       </Card>
     </div>

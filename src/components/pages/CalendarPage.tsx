@@ -1,355 +1,313 @@
 "use client"
 
-import React, { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import {
-  Calendar,
-  Clock,
-  Plus,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  CalendarDays,
-  Bell
-} from "lucide-react"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+import React, { useEffect, useState } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
+import TimelineCalendar from "@/components/organisms/TimelineCalendar"
+import EventDetailsPanel from "@/components/organisms/EventDetailsPanel"
 
-// Mock data de eventos del calendario
-const calendarEvents = [
+interface Event {
+  id: string;
+  title: string;
+  timeRange: string;
+  type: 'internal' | 'personal' | 'maintenance';
+  number?: string;
+  startTime: string;
+  duration: number;
+  employeeId: string;
+  description?: string;
+  location?: string;
+  assignee?: {
+    name: string;
+    avatar?: string;
+  };
+}
+
+// Mock data for employees
+const mockEmployees = [
   {
-    id: 1,
-    title: "Revisión de Inventario",
-    date: "2024-01-15",
-    time: "09:00",
-    type: "inventory",
-    description: "Revisión mensual del inventario de medicamentos",
-    attendees: ["Jorge Herrera", "Ana Silva"]
+    id: "1",
+    name: "Nicholas Amazon",
+    hours: "4 hours",
+    avatar: undefined
   },
   {
-    id: 2,
-    title: "Capacitación Personal",
-    date: "2024-01-16",
-    time: "14:00",
-    type: "training",
-    description: "Capacitación sobre nuevos procedimientos de venta",
-    attendees: ["Todo el equipo"]
+    id: "2",
+    name: "Logan Harrington",
+    hours: "6.5 hours",
+    avatar: undefined
   },
   {
-    id: 3,
-    title: "Reunión con Proveedor",
-    date: "2024-01-17",
-    time: "10:30",
-    type: "meeting",
-    description: "Reunión con Laboratorios XYZ para nuevos productos",
-    attendees: ["Jorge Herrera"]
+    id: "3",
+    name: "Leonard Campbell",
+    hours: "5 hours",
+    avatar: undefined
+  }
+]
+
+// Mock data for events matching the design
+const mockEvents = [
+  {
+    id: "1",
+    title: "Remodeling",
+    timeRange: "9:30 - 10:00",
+    type: "internal" as const,
+    number: "#327",
+    startTime: "9:30",
+    duration: 30,
+    employeeId: "1",
+    description: "Building renovation and structural improvements",
+    assignee: {
+      name: "Nicholas Amazon"
+    }
   },
   {
-    id: 4,
-    title: "Reporte Mensual",
-    date: "2024-01-18",
-    time: "16:00",
-    type: "report",
-    description: "Preparación del reporte mensual de ventas",
-    attendees: ["María González"]
+    id: "2",
+    title: "Generate Report",
+    timeRange: "10:00 - 10:30",
+    type: "personal" as const,
+    number: "#312",
+    startTime: "10:00",
+    duration: 30,
+    employeeId: "1",
+    description: "Monthly performance and analytics report",
+    assignee: {
+      name: "Nicholas Amazon"
+    }
+  },
+  {
+    id: "3",
+    title: "Bathrom Remodeling",
+    timeRange: "10:00 - 10:30",
+    type: "maintenance" as const,
+    number: "#296",
+    startTime: "10:00",
+    duration: 30,
+    employeeId: "2",
+    description: "Complete bathroom renovation with new fixtures",
+    location: "225 Cherry Street #24 Brooklyn, NY",
+    assignee: {
+      name: "Logan Harrington"
+    }
+  },
+  {
+    id: "4",
+    title: "Garbage Disposals",
+    timeRange: "10:30 - 11:20",
+    type: "internal" as const,
+    number: "#318",
+    startTime: "10:30",
+    duration: 50,
+    employeeId: "2",
+    description: "Installation and maintenance of waste disposal units",
+    assignee: {
+      name: "Logan Harrington"
+    }
+  },
+  {
+    id: "5",
+    title: "Landscaping Services",
+    timeRange: "10:30 - 11:00",
+    type: "internal" as const,
+    number: "#332",
+    startTime: "10:30",
+    duration: 30,
+    employeeId: "3",
+    description: "Garden design and maintenance services",
+    assignee: {
+      name: "Leonard Campbell"
+    }
+  },
+  {
+    id: "6",
+    title: "Chimney Repair",
+    timeRange: "11:00 - 11:30",
+    type: "maintenance" as const,
+    number: "#308",
+    startTime: "11:00",
+    duration: 30,
+    employeeId: "1",
+    description: "Structural repair and cleaning of chimney system",
+    assignee: {
+      name: "Nicholas Amazon"
+    }
+  },
+  {
+    id: "7",
+    title: "Energy Audits",
+    timeRange: "11:30 - 12:00",
+    type: "personal" as const,
+    number: "#294",
+    startTime: "11:30",
+    duration: 30,
+    employeeId: "2",
+    description: "Comprehensive energy efficiency assessment",
+    assignee: {
+      name: "Logan Harrington"
+    }
+  },
+  {
+    id: "8",
+    title: "Electrical Services",
+    timeRange: "11:30 - 12:20",
+    type: "maintenance" as const,
+    number: "#309",
+    startTime: "11:30",
+    duration: 50,
+    employeeId: "3",
+    description: "Electrical wiring and fixture installation",
+    assignee: {
+      name: "Leonard Campbell"
+    }
+  },
+  {
+    id: "9",
+    title: "Garbage Disposals",
+    timeRange: "12:00 - 12:30",
+    type: "internal" as const,
+    number: "#293",
+    startTime: "12:00",
+    duration: 30,
+    employeeId: "1",
+    description: "Installation and maintenance of waste disposal units",
+    assignee: {
+      name: "Nicholas Amazon"
+    }
+  },
+  {
+    id: "10",
+    title: "Painting Services",
+    timeRange: "12:30 - 1:00",
+    type: "internal" as const,
+    number: "#299",
+    startTime: "12:30",
+    duration: 30,
+    employeeId: "1",
+    description: "Interior and exterior painting services",
+    assignee: {
+      name: "Nicholas Amazon"
+    }
+  },
+  {
+    id: "11",
+    title: "Plumbing Services",
+    timeRange: "1:00 - 1:30",
+    type: "internal" as const,
+    number: "#297",
+    startTime: "13:00",
+    duration: 30,
+    employeeId: "2",
+    description: "Pipe installation and repair services",
+    assignee: {
+      name: "Logan Harrington"
+    }
+  },
+  {
+    id: "12",
+    title: "Generate Report",
+    timeRange: "1:00 - 1:30",
+    type: "personal" as const,
+    number: "#324",
+    startTime: "13:00",
+    duration: 30,
+    employeeId: "3",
+    description: "Monthly performance and analytics report",
+    assignee: {
+      name: "Leonard Campbell"
+    }
   }
 ]
 
 export function CalendarPage() {
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [selectedDate, setSelectedDate] = useState(new Date())
+  // Initialize with null to avoid hydration issues
+  const [currentDate, setCurrentDate] = useState<Date | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  const [isPanelOpen, setIsPanelOpen] = useState(false)
 
-  const monthNames = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-  ]
+  // Initialize date after hydration
+  useEffect(() => {
+    setCurrentDate(new Date())
+  }, [])
 
-  const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
-
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const startDate = new Date(firstDay)
-    startDate.setDate(startDate.getDate() - firstDay.getDay())
-
-    const days = []
-    const current = new Date(startDate)
-
-    while (days.length < 42) {
-      days.push(new Date(current))
-      current.setDate(current.getDate() + 1)
-    }
-
-    return days
-  }
-
-  const getEventsForDate = (date: Date) => {
-    const dateString = date.toISOString().split('T')[0]
-    return calendarEvents.filter(event => event.date === dateString)
-  }
-
-  const getEventTypeColor = (type: string) => {
-    switch (type) {
-      case "inventory":
-        return "bg-blue-100 text-blue-700 border-blue-200"
-      case "training":
-        return "bg-green-100 text-green-700 border-green-200"
-      case "meeting":
-        return "bg-purple-100 text-purple-700 border-purple-200"
-      case "report":
-        return "bg-yellow-100 text-yellow-700 border-yellow-200"
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-200"
-    }
-  }
-
-  const navigateMonth = (direction: 'prev' | 'next') => {
-    setCurrentDate(prev => {
-      const newDate = new Date(prev)
-      if (direction === 'prev') {
-        newDate.setMonth(prev.getMonth() - 1)
-      } else {
-        newDate.setMonth(prev.getMonth() + 1)
-      }
-      return newDate
-    })
-  }
-
-  const days = getDaysInMonth(currentDate)
-  const todayEvents = getEventsForDate(new Date())
-  const selectedDateEvents = getEventsForDate(selectedDate)
-
-  return (
-    <div className="container mx-auto p-4 lg:p-6 space-y-6">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Panel de Control</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Calendario</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-            Calendario
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Gestiona eventos, citas y recordatorios
-          </p>
+  // Show loading skeleton during hydration
+  if (!currentDate) {
+    return (
+      <div className="h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-8 w-8" />
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-8 w-8" />
+          </div>
+          <div className="flex gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-9 w-16" />
+            ))}
+          </div>
+          <Skeleton className="h-9 w-28" />
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Nuevo Evento
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Calendario Principal */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateMonth('prev')}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentDate(new Date())}
-                  >
-                    Hoy
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateMonth('next')}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+        <div className="flex h-full">
+          <div className="w-24 bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800">
+            <div className="h-16 border-b border-gray-200 dark:border-gray-800" />
+            <div className="space-y-4 p-2">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          </div>
+          <div className="flex-1 flex">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex-1 border-r border-gray-200 dark:border-gray-800">
+                <div className="h-16 p-4 border-b border-gray-200 dark:border-gray-800">
+                  <Skeleton className="h-8 w-full" />
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-7 gap-1 mb-4">
-                {dayNames.map(day => (
-                  <div key={day} className="p-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400">
-                    {day}
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-7 gap-1">
-                {days.map((day, index) => {
-                  const isCurrentMonth = day.getMonth() === currentDate.getMonth()
-                  const isToday = day.toDateString() === new Date().toDateString()
-                  const isSelected = day.toDateString() === selectedDate.toDateString()
-                  const dayEvents = getEventsForDate(day)
-
-                  return (
-                    <div
-                      key={index}
-                      className={`
-                        relative p-2 h-24 border rounded-lg cursor-pointer transition-colors
-                        ${isCurrentMonth
-                          ? 'bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900'
-                          : 'bg-gray-50 dark:bg-gray-900 text-gray-400'
-                        }
-                        ${isToday ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : ''}
-                        ${isSelected ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' : ''}
-                      `}
-                      onClick={() => setSelectedDate(day)}
-                    >
-                      <div className={`text-sm font-medium ${isToday ? 'text-blue-600 dark:text-blue-400' : ''}`}>
-                        {day.getDate()}
-                      </div>
-
-                      <div className="mt-1 space-y-1">
-                        {dayEvents.slice(0, 2).map(event => (
-                          <div
-                            key={event.id}
-                            className={`text-xs px-1 py-0.5 rounded truncate ${getEventTypeColor(event.type)}`}
-                          >
-                            {event.title}
-                          </div>
-                        ))}
-                        {dayEvents.length > 2 && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            +{dayEvents.length - 2} más
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Panel Lateral */}
-        <div className="space-y-6">
-          {/* Eventos de Hoy */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CalendarDays className="h-5 w-5" />
-                Eventos de Hoy
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {todayEvents.length > 0 ? (
-                <div className="space-y-3">
-                  {todayEvents.map(event => (
-                    <div key={event.id} className="p-3 border rounded-lg">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Clock className="h-3 w-3 text-gray-500" />
-                        <span className="text-sm font-medium">{event.time}</span>
-                        <Badge className={`text-xs ${getEventTypeColor(event.type)}`}>
-                          {event.type}
-                        </Badge>
-                      </div>
-                      <h4 className="font-medium text-gray-900 dark:text-white">
-                        {event.title}
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        {event.description}
-                      </p>
-                    </div>
+                <div className="p-4 space-y-4">
+                  {Array.from({ length: 4 }).map((_, j) => (
+                    <Skeleton key={j} className="h-16 w-full" />
                   ))}
                 </div>
-              ) : (
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                  No hay eventos programados para hoy
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Eventos de Fecha Seleccionada */}
-          {selectedDate.toDateString() !== new Date().toDateString() && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
-                  {selectedDate.toLocaleDateString()}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {selectedDateEvents.length > 0 ? (
-                  <div className="space-y-3">
-                    {selectedDateEvents.map(event => (
-                      <div key={event.id} className="p-3 border rounded-lg">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Clock className="h-3 w-3 text-gray-500" />
-                          <span className="text-sm font-medium">{event.time}</span>
-                          <Badge className={`text-xs ${getEventTypeColor(event.type)}`}>
-                            {event.type}
-                          </Badge>
-                        </div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">
-                          {event.title}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {event.description}
-                        </p>
-                        <div className="flex items-center gap-1 mt-2">
-                          <User className="h-3 w-3 text-gray-400" />
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {event.attendees.join(", ")}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                    No hay eventos programados
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Acciones Rápidas */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Acciones Rápidas</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
-                <Plus className="h-4 w-4 mr-2" />
-                Programar Revisión
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Bell className="h-4 w-4 mr-2" />
-                Configurar Recordatorio
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <User className="h-4 w-4 mr-2" />
-                Agendar Reunión
-              </Button>
-            </CardContent>
-          </Card>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+    )
+  }
+
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event)
+    setIsPanelOpen(true)
+  }
+
+  const handleClosePanel = () => {
+    setIsPanelOpen(false)
+    setSelectedEvent(null)
+  }
+
+  const handleAddWork = () => {
+    console.log("Add work order clicked")
+  }
+
+  const handleAddEmployee = () => {
+    console.log("Add employee clicked")
+  }
+
+  return (
+    <div className="relative">
+      <TimelineCalendar
+        employees={mockEmployees}
+        events={mockEvents}
+        currentDate={currentDate}
+        onDateChange={setCurrentDate}
+        onEventClick={handleEventClick}
+        onAddWork={handleAddWork}
+        onAddEmployee={handleAddEmployee}
+      />
+
+      <EventDetailsPanel
+        event={selectedEvent}
+        isOpen={isPanelOpen}
+        onClose={handleClosePanel}
+      />
     </div>
   )
 }

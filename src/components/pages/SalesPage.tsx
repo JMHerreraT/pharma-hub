@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, Suspense } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -14,10 +14,13 @@ import {
   CreditCard
 } from "lucide-react"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
-import MedicationsDataTable from "@/components/organisms/MedicationsDataTable"
 import { MedicationSearch } from "@/components/molecules/MedicationSearch"
 import { CartCustomerLookup } from "@/components/organisms/CartCustomerLookup"
 import ProductAvatar from "@/components/molecules/ProductAvatar"
+import DataTableSkeleton from "@/components/atoms/DataTableSkeleton"
+
+// Lazy load MedicationsDataTable
+const LazyMedicationsDataTable = React.lazy(() => import('@/components/organisms/LazyMedicationsDataTable'))
 
 // Mock data de medicamentos con stock
 const medicamentosStock = [
@@ -244,34 +247,36 @@ export function SalesPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <MedicationsDataTable
-                medications={filteredMedicamentos.map((med, index) => ({
-                  id: index + 1,
-                  name: med.name,
-                  generic: med.generic,
-                  category: med.category,
-                  price: med.price,
-                  stock: med.stock,
-                  compound: med.compound,
-                  image: med.image,
-                  prescription: med.prescription,
-                  indications: med.indications
-                }))}
-                onAddToCart={(medication: { name: string; generic: string; category: string; price: number; stock: number; compound: string; image?: string; prescription: boolean; indications?: string[] }) => {
-                  // Encontrar el medicamento original por nombre
-                  const originalMed = filteredMedicamentos.find(med => med.name === medication.name)
-                  if (originalMed) {
-                    addToCart(originalMed)
-                  }
-                }}
-                hasAvailableStock={(medication: { name: string; generic: string; category: string; price: number; stock: number; compound: string; image?: string; prescription: boolean; indications?: string[] }) => {
-                  const originalMed = filteredMedicamentos.find(med => med.name === medication.name)
-                  return originalMed ? hasAvailableStock(originalMed) : false
-                }}
-                enableRowsPerPage={true}
-                enablePagination={true}
-                defaultItemsToShow={8}
-              />
+              <Suspense fallback={<DataTableSkeleton rows={8} columns={6} showHeader={false} />}>
+                <LazyMedicationsDataTable
+                  medications={filteredMedicamentos.map((med, index) => ({
+                    id: index + 1,
+                    name: med.name,
+                    generic: med.generic,
+                    category: med.category,
+                    price: med.price,
+                    stock: med.stock,
+                    compound: med.compound,
+                    image: med.image,
+                    prescription: med.prescription,
+                    indications: med.indications
+                  }))}
+                  onAddToCart={(medication: { name: string; generic: string; category: string; price: number; stock: number; compound: string; image?: string; prescription: boolean; indications?: string[] }) => {
+                    // Encontrar el medicamento original por nombre
+                    const originalMed = filteredMedicamentos.find(med => med.name === medication.name)
+                    if (originalMed) {
+                      addToCart(originalMed)
+                    }
+                  }}
+                  hasAvailableStock={(medication: { name: string; generic: string; category: string; price: number; stock: number; compound: string; image?: string; prescription: boolean; indications?: string[] }) => {
+                    const originalMed = filteredMedicamentos.find(med => med.name === medication.name)
+                    return originalMed ? hasAvailableStock(originalMed) : false
+                  }}
+                  enableRowsPerPage={true}
+                  enablePagination={true}
+                  defaultItemsToShow={8}
+                />
+              </Suspense>
             </CardContent>
           </Card>
         </div>

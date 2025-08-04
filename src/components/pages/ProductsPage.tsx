@@ -1,8 +1,11 @@
 "use client"
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import ProductsPageHeader from '../organisms/ProductsPageHeader'
-import ProductsPageDataTable from '../organisms/ProductsPageDataTable'
+import DataTableSkeleton from '../atoms/DataTableSkeleton'
+
+// Lazy load ProductsPageDataTable
+const LazyProductsPageDataTable = React.lazy(() => import('../organisms/LazyProductsPageDataTable'))
 
 const ProductsPage = () => {
   return (
@@ -13,11 +16,9 @@ const ProductsPage = () => {
 
         {/* Tabla de productos con funcionalidades completas */}
         <div className="w-full">
-          <ProductsPageDataTable
-            enableRowsPerPage={true}
-            enablePagination={true}
-            defaultItemsToShow={10}
-          />
+          <Suspense fallback={<DataTableSkeleton rows={10} columns={8} />}>
+            <LazyProductsPageDataTable />
+          </Suspense>
         </div>
       </div>
     </div>

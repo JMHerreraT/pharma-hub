@@ -1,13 +1,6 @@
 "use client"
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -25,7 +18,7 @@ export const ActivityChartCard = () => {
   // If chartData is undefined or not an array, show fallback UI
   if (!isValidData) {
     return (
-    
+
           <div style={{ padding: "2rem", textAlign: "center", color: "#888" }}>
             No chart data available.
           </div>

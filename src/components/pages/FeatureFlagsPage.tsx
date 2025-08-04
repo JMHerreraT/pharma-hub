@@ -1,10 +1,13 @@
 "use client"
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Plus, AlertTriangle } from 'lucide-react'
-import FeatureFlagsDataTable from '@/components/organisms/FeatureFlagsDataTable'
+import DataTableSkeleton from '@/components/atoms/DataTableSkeleton'
+
+// Lazy load FeatureFlagsDataTable
+const LazyFeatureFlagsDataTable = React.lazy(() => import('@/components/organisms/LazyFeatureFlagsDataTable'))
 
 const FeatureFlagsPage = () => {
   return (
@@ -43,7 +46,9 @@ const FeatureFlagsPage = () => {
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto px-4">
-            <FeatureFlagsDataTable />
+            <Suspense fallback={<DataTableSkeleton rows={8} columns={6} showHeader={false} />}>
+              <LazyFeatureFlagsDataTable />
+            </Suspense>
           </div>
         </CardContent>
       </Card>

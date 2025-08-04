@@ -18,7 +18,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { BellIcon, CreditCardIcon, LogOutIcon, Monitor, Moon, MoreVertical, Sun, SunMoon, UserCircle } from "lucide-react"
 
 interface UserProfileProps {
-  user: any;
+  user: {
+    name: string;
+    email: string;
+    avatar?: string;
+  };
 }
 
 export function UserProfile({ user }: UserProfileProps) {

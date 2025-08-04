@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, Suspense } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,7 +13,10 @@ import {
   Gift
 } from "lucide-react"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
-import FrequentCustomersDataTable from "@/components/organisms/FrequentCustomersDataTable"
+import DataTableSkeleton from "@/components/atoms/DataTableSkeleton"
+
+// Lazy load FrequentCustomersDataTable
+const LazyFrequentCustomersDataTable = React.lazy(() => import('@/components/organisms/LazyFrequentCustomersDataTable'))
 
 // Mock data de clientes frecuentes
 const clientesFrecuentes = [
@@ -82,11 +85,11 @@ const clientesFrecuentes = [
 export function FrequentCustomersPage() {
   const [searchTerm, setSearchTerm] = useState("")
 
-  const filteredCustomers = clientesFrecuentes.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm)
-  )
+  // const filteredCustomers = clientesFrecuentes.filter(customer =>
+  //   customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //   customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //   customer.phone.includes(searchTerm)
+  // )
 
   const stats = {
     totalCustomers: clientesFrecuentes.length,
@@ -209,27 +212,9 @@ export function FrequentCustomersPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <FrequentCustomersDataTable
-            customers={filteredCustomers.map((customer, index) => ({
-              id: index + 1,
-              customerId: customer.id,
-              name: customer.name,
-              email: customer.email,
-              phone: customer.phone,
-              address: customer.address,
-              totalPurchases: customer.totalPurchases,
-              totalSpent: customer.totalSpent,
-              lastPurchase: customer.lastPurchase,
-              loyaltyPoints: customer.loyaltyPoints,
-              tier: customer.tier,
-              joinDate: customer.joinDate,
-              favoriteCategory: customer.favoriteCategory,
-              birthDate: customer.birthDate,
-            }))}
-            enableRowsPerPage={true}
-            enablePagination={true}
-            defaultItemsToShow={8}
-          />
+          <Suspense fallback={<DataTableSkeleton rows={8} columns={9} showHeader={false} />}>
+            <LazyFrequentCustomersDataTable />
+          </Suspense>
         </CardContent>
       </Card>
     </div>

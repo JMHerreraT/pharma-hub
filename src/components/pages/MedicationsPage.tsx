@@ -1,8 +1,11 @@
 "use client"
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import MedicationsPageHeader from '../organisms/MedicationsPageHeader'
-import MedicationsDataTable from '../organisms/MedicationsDataTable'
+import DataTableSkeleton from '../atoms/DataTableSkeleton'
+
+// Lazy load MedicationsDataTable for page
+const LazyMedicationsPageDataTable = React.lazy(() => import('../organisms/LazyMedicationsPageDataTable'))
 
 const MedicationsPage = () => {
   return (
@@ -13,11 +16,13 @@ const MedicationsPage = () => {
 
         {/* Tabla de medicamentos con funcionalidades completas */}
         <div className="w-full">
-          <MedicationsDataTable
-            enableRowsPerPage={true}
-            enablePagination={true}
-            defaultItemsToShow={10}
-          />
+          <Suspense fallback={<DataTableSkeleton rows={10} columns={7} />}>
+            <LazyMedicationsPageDataTable
+              enableRowsPerPage={true}
+              enablePagination={true}
+              defaultItemsToShow={10}
+            />
+          </Suspense>
         </div>
       </div>
     </div>

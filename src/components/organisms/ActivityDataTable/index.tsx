@@ -95,6 +95,13 @@ const ActivityDataTable = ({
 
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp)
+
+    // Use a consistent time reference to avoid hydration mismatches
+    // During SSR, we'll just show the date format
+    if (typeof window === 'undefined') {
+      return date.toLocaleDateString()
+    }
+
     const now = new Date()
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
 

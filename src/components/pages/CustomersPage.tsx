@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, Suspense } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,7 +12,10 @@ import {
   UserPlus,
 } from "lucide-react"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
-import CustomersDataTable from "@/components/organisms/CustomersDataTable"
+import DataTableSkeleton from "@/components/atoms/DataTableSkeleton"
+
+// Lazy load CustomersDataTable
+const LazyCustomersDataTable = React.lazy(() => import('@/components/organisms/LazyCustomersDataTable'))
 
 // Mock data de todos los clientes
 const allCustomers = [
@@ -191,24 +194,26 @@ export function CustomersPage() {
             </TabsList>
 
             <TabsContent value={activeTab} className="mt-6">
-              <CustomersDataTable
-                customers={filteredCustomers.map((customer, index) => ({
-                  id: index + 1,
-                  customerId: customer.id,
-                  name: customer.name,
-                  email: customer.email,
-                  phone: customer.phone,
-                  address: customer.address,
-                  registeredDate: customer.registeredDate,
-                  status: customer.status,
-                  type: customer.type,
-                  totalPurchases: customer.totalPurchases,
-                  lastPurchase: customer.lastPurchase,
-                }))}
-                enableRowsPerPage={true}
-                enablePagination={true}
-                defaultItemsToShow={10}
-              />
+              <Suspense fallback={<DataTableSkeleton rows={10} columns={8} showHeader={false} />}>
+                <LazyCustomersDataTable
+                  customers={filteredCustomers.map((customer, index) => ({
+                    id: index + 1,
+                    customerId: customer.id,
+                    name: customer.name,
+                    email: customer.email,
+                    phone: customer.phone,
+                    address: customer.address,
+                    registeredDate: customer.registeredDate,
+                    status: customer.status,
+                    type: customer.type,
+                    totalPurchases: customer.totalPurchases,
+                    lastPurchase: customer.lastPurchase,
+                  }))}
+                  enableRowsPerPage={true}
+                  enablePagination={true}
+                  defaultItemsToShow={10}
+                />
+              </Suspense>
             </TabsContent>
           </Tabs>
         </CardContent>
