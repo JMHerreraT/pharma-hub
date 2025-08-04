@@ -151,7 +151,7 @@ const MetricCard = ({
       </div>
 
       {/* Header - Responsive */}
-      <div className="flex items-start justify-between mb-4 sm:mb-6 relative z-30">
+      <div className="flex items-start justify-between mb-4 sm:mb-6 relative">
         <div className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl ${variant.iconBg} backdrop-blur-sm`}>
           <div className={`${variant.text} [&>svg]:w-5 [&>svg]:h-5 sm:[&>svg]:w-6 sm:[&>svg]:h-6`}>
             {icon}
@@ -163,7 +163,7 @@ const MetricCard = ({
       </div>
 
       {/* Content - Responsive typography */}
-      <div className="relative z-30">
+      <div className="relative">
         <h3 className={`text-base sm:text-lg font-medium mb-3 sm:mb-4 ${variant.text} line-clamp-2`}>
           {title}
         </h3>

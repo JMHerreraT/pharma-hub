@@ -107,7 +107,7 @@ export const BranchSelectorPopover = () => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <ListboxOptions className="absolute left-0 z-50 mt-2 w-56 rounded-lg border border-border bg-popover shadow-lg ring-1 ring-black/5 focus:outline-none overflow-hidden">
+            <ListboxOptions className="absolute left-0 z-[9999] mt-2 w-56 rounded-lg border border-border bg-popover shadow-2xl ring-1 ring-black/10 focus:outline-none overflow-hidden backdrop-blur-sm drop-shadow-xl">
               {/* Header del dropdown */}
               <div className="px-3 py-2.5 border-b border-border">
                 <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Organizations</h3>

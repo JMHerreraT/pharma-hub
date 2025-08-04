@@ -214,9 +214,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }))
 
   return (
-    <Sidebar {...props} className="w-60 h-full border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900" collapsible="offcanvas" variant="sidebar">
-      <SidebarHeader className="px-4 py-6 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between w-full">
+    <Sidebar {...props} className="w-60 h-full border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 overflow-visible" collapsible="offcanvas" variant="sidebar">
+      <SidebarHeader className="px-4 py-6 border-b border-gray-200 dark:border-gray-700 overflow-visible">
+        <div className="flex items-center justify-between w-full overflow-visible">
           {/* Logo lado izquierdo */}
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-teal-600 dark:bg-teal-500 rounded-lg flex items-center justify-center">
@@ -226,7 +226,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </div>
 
           {/* Selector compacto lado derecho */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 relative z-[10000]">
             <BranchSelectorPopover />
           </div>
         </div>
