@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react';
 import { fetchAuthSession, getCurrentUser, signOut } from 'aws-amplify/auth';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query-client';
-import { User } from '@/types/auth';
-import apiClient from '@/lib/api-client';
+import { User, UserRole } from '@/types/auth';
 import toast from 'react-hot-toast';
 
 export function useAuth() {
@@ -30,31 +29,23 @@ export function useAuth() {
           return null;
         }
 
-        // Extraer claims del token
+        // Extract user info from token claims
         const claims = session.tokens.accessToken.payload;
 
-        // Obtener datos adicionales del backend si es necesario
-        try {
-          const { data: backendData } = await apiClient.get('/auth/me');
-          if (backendData.success) {
-            return backendData.data.user;
-          }
-        } catch (backendError) {
-          console.warn('Backend user data fetch failed, using token claims:', backendError);
-        }
-
-        // Fallback a claims del token
-        return {
+        // Create user object from token claims
+        const user: User = {
           id: claims.sub as string,
           email: claims.email as string,
-          name: claims.name as string,
-          role: claims['custom:role'] as 'admin' | 'pharmacist' | 'assistant',
-          organizationId: claims['custom:organizationId'] as string,
-          businessId: claims['custom:businessId'] as string,
-          branchId: claims['custom:branchId'] as string,
+          name: claims.name as string || claims['cognito:username'] as string,
+          role: claims['custom:role'] as UserRole || 'basic_user',
+          organizationId: claims['custom:organizationId'] as string || '',
+          businessId: claims['custom:businessId'] as string || '',
+          branchId: claims['custom:branchId'] as string || '',
           isActive: true,
-          phone: claims.phone_number as string,
+          phone: claims.phone_number as string || '',
         };
+
+        return user;
       } catch (error) {
         console.warn('Auth check failed:', error);
         return null;
@@ -85,7 +76,7 @@ export function useAuth() {
 
       // Redireccionar después de limpiar cache
       setTimeout(() => {
-        window.location.href = '/login';
+        window.location.href = '/auth/login';
       }, 100);
     },
     onError: (error) => {
@@ -94,7 +85,7 @@ export function useAuth() {
 
       // Force redirect even on error
       setTimeout(() => {
-        window.location.href = '/login';
+        window.location.href = '/auth/login';
       }, 1000);
     },
   });

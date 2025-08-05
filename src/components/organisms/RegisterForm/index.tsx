@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Hand, Building2, Mail, Eye, EyeOff, Phone } from 'lucide-react'
-import { useRegister, useValidateBusinessId } from '@/lib/auth-services'
+import { useRegister, type ValidateBusinessIdResponse } from '@/lib/auth-services'
 
 // Schema de validación
 const registerSchema = z.object({
@@ -37,17 +37,19 @@ const RegisterForm = () => {
 
   // Hooks de autenticación
   const registerMutation = useRegister()
-  const validateBusinessIdMutation = useValidateBusinessId()
 
   // Obtener parámetros de la URL
   const businessIdFromUrl = searchParams.get('businessId') || ''
   const invitationTokenFromUrl = searchParams.get('invitationToken') || ''
 
+  // Obtener información pre-validada de la organización
+  const orgDataParam = searchParams.get('orgData')
+  const organizationInfo: ValidateBusinessIdResponse | null = orgDataParam ? JSON.parse(orgDataParam) : null
+
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -56,8 +58,6 @@ const RegisterForm = () => {
       invitationToken: invitationTokenFromUrl,
     }
   })
-
-  const watchedBusinessId = watch('businessId')
 
   // Establecer valores de URL cuando el componente se monta
   useEffect(() => {
@@ -69,33 +69,19 @@ const RegisterForm = () => {
     }
   }, [businessIdFromUrl, invitationTokenFromUrl, setValue])
 
-  // Validar Business ID cuando cambia
-  useEffect(() => {
-    if (watchedBusinessId && watchedBusinessId.length >= 3) {
-      validateBusinessIdMutation.mutate(watchedBusinessId)
-    }
-  }, [watchedBusinessId, validateBusinessIdMutation])
-
-  // Obtener información de la organización del resultado de la validación
-  const organizationInfo = validateBusinessIdMutation.data
+  // Nota: La validación del Business ID ya se hizo en AuthWelcomeContent
+  // organizationInfo ya contiene la información pre-validada
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      const result = await registerMutation.mutateAsync(data)
+      await registerMutation.mutateAsync(data)
 
-      if (result.requiresVerification) {
-        // Redirigir a verificación OTP
-        const params = new URLSearchParams({
-          email: data.email,
-          ...(data.businessId && { businessId: data.businessId })
-        })
-        window.location.href = `/auth/verify-otp?${params.toString()}`
-      } else {
-        // Registro completado, redirigir al dashboard
-        setTimeout(() => {
-          window.location.href = '/dashboard'
-        }, 1000)
-      }
+      // Siempre redirigir a verificación OTP después del registro
+      const params = new URLSearchParams({
+        email: data.email,
+        ...(data.businessId && { businessId: data.businessId })
+      })
+      window.location.href = `/auth/verify-otp?${params.toString()}`
     } catch (error) {
       // El error ya se maneja en el mutation
       console.error('Register error:', error)
@@ -110,21 +96,67 @@ const RegisterForm = () => {
           <div className="text-center space-y-2">
             <div className="flex items-center justify-center gap-2">
               <h1 className="text-2xl font-bold text-foreground">
-                ¡Hola, Bienvenido!
+                {invitationTokenFromUrl ? '🎉 ¡Has sido invitado!' : '¡Hola, Bienvenido!'}
               </h1>
               <Hand className="w-6 h-6 text-primary" />
             </div>
             <p className="text-muted-foreground">
-              Bienvenido, por favor ingresa tus datos
+              {invitationTokenFromUrl
+                ? 'Completa tu registro con la invitación recibida'
+                : 'Bienvenido, por favor ingresa tus datos'
+              }
             </p>
           </div>
 
+          {/* Invitation Alert */}
+          {invitationTokenFromUrl && (
+            <Alert className="border-blue-500/20 bg-blue-50">
+              <AlertDescription className="text-blue-800">
+                <div className="space-y-1">
+                  <div className="font-semibold">🎉 ¡Invitación activa!</div>
+                  <div className="text-sm">
+                    Estás registrándote con una invitación para la sucursal: <strong>{businessIdFromUrl}</strong>
+                  </div>
+                  {organizationInfo?.organization && (
+                    <div className="text-xs mt-2">
+                      Organización: <strong>{organizationInfo.organization.organizationName}</strong>
+                    </div>
+                  )}
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Organization Alert */}
-          {organizationInfo && (
+          {organizationInfo && organizationInfo.organization && (
             <Alert className="border-primary/20 bg-accent">
               <Building2 className="h-4 w-4 text-primary" />
               <AlertDescription className="text-accent-foreground">
-                Te estás registrando para <strong>&quot;{organizationInfo.organizationName}&quot;</strong>
+                <div className="space-y-2">
+                  <div>
+                    Te estás registrando para <strong>&quot;{organizationInfo.organization.organizationName}&quot;</strong>
+                  </div>
+                  {organizationInfo.selectedBranch && (
+                    <div className="text-xs">
+                      <div className="font-medium">Sucursal asignada:</div>
+                      <div className="flex justify-between items-center">
+                        <span>{organizationInfo.selectedBranch.name}</span>
+                        <span className="text-muted-foreground">{organizationInfo.selectedBranch.city}</span>
+                      </div>
+                    </div>
+                  )}
+                  {organizationInfo.organization.branches?.length > 1 && (
+                    <div className="text-xs space-y-1">
+                      <div className="font-medium">Sucursales disponibles:</div>
+                      {organizationInfo.organization.branches.map((branch) => (
+                        <div key={branch.id} className="flex justify-between items-center">
+                          <span>{branch.name}</span>
+                          <span className="text-muted-foreground">{branch.city}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </AlertDescription>
             </Alert>
           )}
@@ -140,29 +172,31 @@ const RegisterForm = () => {
                     ✓ Verificado
                   </span>
                 )}
-                {validateBusinessIdMutation.isPending && (
-                  <span className="text-xs text-muted-foreground">
-                    Validando...
+                {invitationTokenFromUrl && (
+                  <span className="text-xs text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
+                    🎉 Invitación
                   </span>
                 )}
               </Label>
               <Input
                 id="businessId"
                 placeholder="Ingresa tu Business ID"
-                disabled={!!businessIdFromUrl}
-                className={businessIdFromUrl ? "bg-muted cursor-not-allowed opacity-75" : ""}
+                disabled={!!businessIdFromUrl || !!invitationTokenFromUrl}
+                className={(businessIdFromUrl || invitationTokenFromUrl) ? "bg-muted cursor-not-allowed opacity-75" : ""}
                 {...register('businessId')}
               />
-              {businessIdFromUrl && (
+              {businessIdFromUrl && !invitationTokenFromUrl && (
                 <p className="text-xs text-muted-foreground">
                   Este Business ID fue verificado en el paso anterior
                 </p>
               )}
+              {invitationTokenFromUrl && (
+                <p className="text-xs text-blue-600">
+                  Business ID pre-llenado desde la invitación
+                </p>
+              )}
               {errors.businessId && (
                 <p className="text-sm text-destructive">{errors.businessId.message}</p>
-              )}
-              {validateBusinessIdMutation.error && (
-                <p className="text-sm text-destructive">{validateBusinessIdMutation.error.message}</p>
               )}
             </div>
 
@@ -267,15 +301,15 @@ const RegisterForm = () => {
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-              disabled={registerMutation.isPending || validateBusinessIdMutation.isPending}
+              disabled={registerMutation.isPending}
             >
               {registerMutation.isPending ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Creando cuenta...
+                  {invitationTokenFromUrl ? 'Completando registro...' : 'Creando cuenta...'}
                 </div>
               ) : (
-                'Registrarse'
+                invitationTokenFromUrl ? 'Completar Registro con Invitación' : 'Registrarse'
               )}
             </Button>
           </form>

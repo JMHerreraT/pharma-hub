@@ -9,12 +9,15 @@ import AuthOptionCard from '@/components/molecules/AuthOptionCard'
 import InfoModal from '@/components/molecules/InfoModal'
 import { Building2, HelpCircle, ArrowLeft, KeyRound } from 'lucide-react'
 import { toast } from 'sonner'
+import { useValidateBusinessId } from '@/lib/auth-services'
 
 const AuthWelcomeContent = () => {
   const [showInfoModal, setShowInfoModal] = useState(false)
   const [showBusinessIdForm, setShowBusinessIdForm] = useState(false)
   const [businessId, setBusinessId] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+
+  // Hook para validar Business ID
+  const validateBusinessIdMutation = useValidateBusinessId()
 
   const handleBusinessIdOption = () => {
     setShowBusinessIdForm(true)
@@ -35,25 +38,30 @@ const AuthWelcomeContent = () => {
       return
     }
 
-    setIsLoading(true)
     try {
-      // Simular validación del Business ID
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      // Aquí validarías el Business ID con tu API
-      console.log('Validating Business ID:', businessId)
+      // Validar Business ID con la API real
+      const result = await validateBusinessIdMutation.mutateAsync(businessId)
 
       toast.success('Business ID válido. Redirigiendo...')
 
-      // Redirigir al registro con el Business ID
+      // Preparar datos para query params
+      const queryParams = new URLSearchParams({
+        businessId: businessId,
+        organizationId: result.organization.id,
+        organizationName: result.organization.organizationName,
+        accessType: result.accessType,
+        orgData: JSON.stringify(result) // Toda la información de la organización
+      })
+
+      // Redirigir al registro con toda la información
       setTimeout(() => {
-        window.location.href = `/auth/register?businessId=${encodeURIComponent(businessId)}`
+        window.location.href = `/auth/register?${queryParams.toString()}`
       }, 1000)
 
-    } catch {
-      toast.error('Business ID no válido. Verifica e intenta de nuevo.')
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      // El error ya se maneja en el mutation, pero agregamos un toast
+      const err = error as Error
+      toast.error(err.message || 'Business ID no válido. Verifica e intenta de nuevo.')
     }
   }
 
@@ -145,7 +153,7 @@ const AuthWelcomeContent = () => {
                     value={businessId}
                     onChange={(e) => setBusinessId(e.target.value)}
                     className="text-center font-mono text-lg"
-                    disabled={isLoading}
+                    disabled={validateBusinessIdMutation.isPending}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         handleBusinessIdSubmit()
@@ -156,10 +164,17 @@ const AuthWelcomeContent = () => {
 
                 <Button
                   onClick={handleBusinessIdSubmit}
-                  disabled={isLoading || !businessId.trim()}
+                  disabled={validateBusinessIdMutation.isPending || !businessId.trim()}
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  {isLoading ? 'Validando...' : 'Ingresar'}
+                  {validateBusinessIdMutation.isPending ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Validando...
+                    </div>
+                  ) : (
+                    'Ingresar'
+                  )}
                 </Button>
               </div>
 

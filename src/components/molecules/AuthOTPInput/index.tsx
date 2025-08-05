@@ -45,12 +45,12 @@ export default function AuthOTPInput({
             <div className="flex gap-2">
               <InputOTPGroup>
                 {slots.slice(0, 3).map((slot, index) => (
-                  <InputOTPSlot key={index} {...slot} />
+                  <InputOTPSlot key={index} {...slot} index={index} />
                 ))}
               </InputOTPGroup>
               <InputOTPGroup>
                 {slots.slice(3, 6).map((slot, index) => (
-                  <InputOTPSlot key={index + 3} {...slot} />
+                  <InputOTPSlot key={index + 3} {...slot} index={index + 3} />
                 ))}
               </InputOTPGroup>
             </div>

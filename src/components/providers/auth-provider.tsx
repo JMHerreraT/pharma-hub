@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -8,6 +8,8 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from '@/lib/query-client';
 import { useAuth } from '@/hooks/use-auth';
 import { User } from '@/types/auth';
+// Importar configuración de Amplify INMEDIATAMENTE
+import '@/lib/amplify-config';
 
 // Context para estado de autenticación
 interface AuthContextType {
@@ -35,7 +37,10 @@ function AuthContextProvider({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
 
   return (
-    <AuthContext.Provider value={auth}>
+    <AuthContext.Provider value={{
+      ...auth,
+      user: auth.user ?? null, // Convertir undefined a null
+    }}>
       {children}
     </AuthContext.Provider>
   );
@@ -46,11 +51,6 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  useEffect(() => {
-    // Configurar Amplify en el cliente
-    import('@/lib/amplify-config');
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <Authenticator.Provider>

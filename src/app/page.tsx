@@ -15,7 +15,7 @@ export default function Home() {
         router.push('/dashboard');
       } else {
         // Si no está autenticado, redirigir al login
-        router.push('/login');
+        router.push('/auth/login');
       }
     }
   }, [isAuthenticated, isLoading, router]);

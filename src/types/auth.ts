@@ -1,10 +1,21 @@
 // 🔐 Auth Types for PharmaHub
 
+// Tipos de roles según el Role Mapping Guide
+export type UserRole =
+  | 'super_admin'
+  | 'admin'
+  | 'system_admin'
+  | 'customer_manager'
+  | 'sales_operator'
+  | 'pharmacist'
+  | 'assistant'
+  | 'basic_user';
+
 export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'pharmacist' | 'assistant';
+  role: UserRole;
   organizationId: string;
   businessId: string;
   branchId?: string;
@@ -54,7 +65,8 @@ export interface ResetPasswordData {
 export interface InviteUserData {
   email: string;
   name: string;
-  role: 'admin' | 'pharmacist' | 'assistant';
+  role: UserRole;
+  businessId: string;
   phone?: string;
   message?: string;
 }

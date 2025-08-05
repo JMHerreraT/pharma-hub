@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/input-otp"
 import { ArrowLeft, Shield, RotateCcw } from 'lucide-react'
 import { useVerifyOTP, useResendOTP } from '@/lib/auth-services'
+import { toast } from 'sonner'
 
 const VerifyOTPForm = () => {
   const searchParams = useSearchParams()
@@ -42,15 +43,22 @@ const VerifyOTPForm = () => {
     }
 
     try {
-      await verifyOTPMutation.mutateAsync({
+      const result = await verifyOTPMutation.mutateAsync({
         email,
         code: otp,
       })
 
-      // Redirigir al dashboard después de verificación exitosa
-      setTimeout(() => {
-        window.location.href = '/dashboard'
-      }, 1000)
+      // Si requiere configuración de contraseña, redirigir a set-password
+      if (result.requiresPasswordSetup) {
+        setTimeout(() => {
+          window.location.href = `/auth/set-password?email=${encodeURIComponent(email)}`
+        }, 1000)
+      } else {
+        // Si no requiere configuración, redirigir al dashboard
+        setTimeout(() => {
+          window.location.href = '/dashboard'
+        }, 1000)
+      }
     } catch {
       // El error ya se maneja en el mutation
       setOtp('') // Limpiar el campo OTP
@@ -111,7 +119,7 @@ const VerifyOTPForm = () => {
                   maxLength={6}
                   value={otp}
                   onChange={setOtp}
-                  disabled={isLoading}
+                  disabled={verifyOTPMutation.isPending}
                 >
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />

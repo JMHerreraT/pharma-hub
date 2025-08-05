@@ -12,7 +12,7 @@ interface AuthButtonProps {
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
   variant?: 'primary' | 'secondary' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
 }
 
@@ -24,7 +24,7 @@ export default function AuthButton({
   onClick,
   type = 'button',
   variant = 'primary',
-  size = 'md',
+  size = 'default',
   className = ''
 }: AuthButtonProps) {
   const variantClasses = {

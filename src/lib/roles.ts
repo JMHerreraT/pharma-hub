@@ -42,6 +42,9 @@ export const PERMISSIONS = {
   // Feature Flags - NUEVO
   FEATURE_MANAGEMENT: 'feature:management' as const,
 
+  // Gestión de Usuarios
+  USER_MANAGEMENT: 'user:management' as const,
+
   // Administración
   ADMIN_FULL_ACCESS: 'admin:full_access' as const,
 } as const
@@ -88,22 +91,48 @@ export const ROLES = {
       PERMISSIONS.SYSTEM_AI_ASSISTANT,
       // Feature Flags
       PERMISSIONS.FEATURE_MANAGEMENT,
+      // Gestión de Usuarios
+      PERMISSIONS.USER_MANAGEMENT,
     ] as Permission[]
   },
 
-  // Administrador de Clientes - Solo gestión de clientes
-  CUSTOMER_MANAGER: {
-    id: 'customer_manager',
-    name: 'Gestor de Clientes',
-    description: 'Acceso completo a la gestión de clientes y clientes frecuentes',
+  // Administrador - Acceso completo a organización
+  ADMIN: {
+    id: 'admin',
+    name: 'Administrador',
+    description: 'Acceso completo a organización, puede invitar usuarios y gestionar sucursales',
     permissions: [
       PERMISSIONS.DASHBOARD_VIEW,
+      // Ventas
+      PERMISSIONS.SALES_VIEW,
+      PERMISSIONS.SALES_MANAGE,
+      // Productos
+      PERMISSIONS.PRODUCTS_VIEW,
+      PERMISSIONS.PRODUCTS_CREATE,
+      PERMISSIONS.PRODUCTS_EDIT,
+      PERMISSIONS.PRODUCTS_DELETE,
+      // Pedidos
+      PERMISSIONS.ORDERS_VIEW,
+      PERMISSIONS.ORDERS_MANAGE,
+      // Medicamentos
+      PERMISSIONS.MEDICATIONS_VIEW,
+      PERMISSIONS.MEDICATIONS_MANAGE,
       // Clientes
       PERMISSIONS.CUSTOMERS_VIEW,
       PERMISSIONS.CUSTOMERS_MANAGE,
       PERMISSIONS.CUSTOMERS_FREQUENT_VIEW,
-      // Reportes básicos
+      // Reportes
       PERMISSIONS.REPORTS_VIEW,
+      PERMISSIONS.REPORTS_GENERATE,
+      // Sistema
+      PERMISSIONS.SYSTEM_VIEW,
+      PERMISSIONS.SYSTEM_ACTIVITY,
+      PERMISSIONS.SYSTEM_CALENDAR,
+      PERMISSIONS.SYSTEM_AI_ASSISTANT,
+      // Feature Flags
+      PERMISSIONS.FEATURE_MANAGEMENT,
+      // Gestión de Usuarios
+      PERMISSIONS.USER_MANAGEMENT,
     ] as Permission[]
   },
 
@@ -122,6 +151,24 @@ export const ROLES = {
       // Reportes del sistema
       PERMISSIONS.REPORTS_VIEW,
       PERMISSIONS.REPORTS_GENERATE,
+      // Gestión de Usuarios
+      PERMISSIONS.USER_MANAGEMENT,
+    ] as Permission[]
+  },
+
+  // Administrador de Clientes - Solo gestión de clientes
+  CUSTOMER_MANAGER: {
+    id: 'customer_manager',
+    name: 'Gestor de Clientes',
+    description: 'Acceso completo a la gestión de clientes y clientes frecuentes',
+    permissions: [
+      PERMISSIONS.DASHBOARD_VIEW,
+      // Clientes
+      PERMISSIONS.CUSTOMERS_VIEW,
+      PERMISSIONS.CUSTOMERS_MANAGE,
+      PERMISSIONS.CUSTOMERS_FREQUENT_VIEW,
+      // Reportes básicos
+      PERMISSIONS.REPORTS_VIEW,
     ] as Permission[]
   },
 
@@ -148,6 +195,42 @@ export const ROLES = {
     ] as Permission[]
   },
 
+  // Farmacéutico - Gestión de medicamentos y consultas
+  PHARMACIST: {
+    id: 'pharmacist',
+    name: 'Farmacéutico',
+    description: 'Gestión de medicamentos, consultas farmacéuticas y productos',
+    permissions: [
+      PERMISSIONS.DASHBOARD_VIEW,
+      // Medicamentos
+      PERMISSIONS.MEDICATIONS_VIEW,
+      PERMISSIONS.MEDICATIONS_MANAGE,
+      // Productos (edición)
+      PERMISSIONS.PRODUCTS_VIEW,
+      PERMISSIONS.PRODUCTS_EDIT,
+      // Sistema AI Assistant
+      PERMISSIONS.SYSTEM_AI_ASSISTANT,
+      // Reportes básicos
+      PERMISSIONS.REPORTS_VIEW,
+    ] as Permission[]
+  },
+
+  // Asistente - Acceso limitado
+  ASSISTANT: {
+    id: 'assistant',
+    name: 'Asistente',
+    description: 'Acceso limitado a dashboard y consultas básicas',
+    permissions: [
+      PERMISSIONS.DASHBOARD_VIEW,
+      // Solo visualización básica
+      PERMISSIONS.SALES_VIEW,
+      PERMISSIONS.PRODUCTS_VIEW,
+      PERMISSIONS.ORDERS_VIEW,
+      PERMISSIONS.MEDICATIONS_VIEW,
+      PERMISSIONS.CUSTOMERS_VIEW,
+    ] as Permission[]
+  },
+
   // Empleado Básico - Acceso limitado
   BASIC_USER: {
     id: 'basic_user',
@@ -168,6 +251,23 @@ export const ROLES = {
 export type RoleId = keyof typeof ROLES
 export type Role = typeof ROLES[RoleId]
 
+// Mapeo de roles de Cognito al frontend según el Role Mapping Guide
+export const COGNITO_ROLE_MAPPING: Record<string, RoleId> = {
+  'super_admin': 'SUPER_ADMIN',
+  'admin': 'ADMIN',
+  'system_admin': 'SYSTEM_ADMIN',
+  'customer_manager': 'CUSTOMER_MANAGER',
+  'sales_operator': 'SALES_OPERATOR',
+  'pharmacist': 'PHARMACIST',
+  'assistant': 'ASSISTANT',
+  'basic_user': 'BASIC_USER',
+} as const;
+
+// Función helper para mapear roles de Cognito al frontend
+export const mapCognitoRoleToRoleId = (cognitoRole: string): RoleId => {
+  return COGNITO_ROLE_MAPPING[cognitoRole] || 'BASIC_USER';
+};
+
 // Mapa de rutas y sus permisos requeridos
 export const ROUTE_PERMISSIONS = {
   '/dashboard': [PERMISSIONS.DASHBOARD_VIEW],
@@ -181,6 +281,7 @@ export const ROUTE_PERMISSIONS = {
   '/dashboard/activity': [PERMISSIONS.SYSTEM_ACTIVITY],
   '/dashboard/calendar': [PERMISSIONS.SYSTEM_CALENDAR],
   '/dashboard/ai-assistant': [PERMISSIONS.SYSTEM_AI_ASSISTANT],
+  '/dashboard/invite': [PERMISSIONS.USER_MANAGEMENT],
   '/dashboard/feature-flags': [PERMISSIONS.FEATURE_MANAGEMENT],
 } as const
 

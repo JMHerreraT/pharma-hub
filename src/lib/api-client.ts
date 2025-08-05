@@ -10,15 +10,13 @@ const apiClient = axios.create({
   },
 });
 
-// Interceptor para agregar token automáticamente
+// Add request interceptor to include Amplify tokens
 apiClient.interceptors.request.use(
   async (config) => {
     try {
       const session = await fetchAuthSession();
-      const token = session.tokens?.accessToken?.toString();
-
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      if (session.tokens?.accessToken) {
+        config.headers.Authorization = `Bearer ${session.tokens.accessToken.toString()}`;
       }
 
       // Log en desarrollo
@@ -29,7 +27,7 @@ apiClient.interceptors.request.use(
         });
       }
     } catch (error) {
-      console.warn('No auth token available:', error);
+      console.warn('Failed to get auth session:', error);
     }
 
     return config;
@@ -63,7 +61,7 @@ apiClient.interceptors.response.use(
       // Token expirado - redirect a login
       toast.error('Sesión expirada. Redirigiendo al login...');
       setTimeout(() => {
-        window.location.href = '/login';
+        window.location.href = '/auth/login';
       }, 1500);
       return Promise.reject(error);
     }

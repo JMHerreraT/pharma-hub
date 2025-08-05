@@ -155,6 +155,12 @@ const data = {
           requiredPermission: PERMISSIONS.SYSTEM_AI_ASSISTANT,
         },
         {
+          title: "Invitar Usuario",
+          url: "/dashboard/invite",
+          icon: UserPlus,
+          requiredPermission: PERMISSIONS.USER_MANAGEMENT,
+        },
+        {
           title: "Feature Flags",
           url: "/dashboard/feature-flags",
           icon: Settings2,

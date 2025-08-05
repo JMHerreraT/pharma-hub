@@ -3,11 +3,12 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
+import { UserRole } from '@/types/auth';
 
 interface AuthGuardProps {
   children: React.ReactNode;
   requireAuth?: boolean;
-  requiredRole?: 'admin' | 'pharmacist' | 'assistant';
+  requiredRole?: UserRole;
   fallback?: React.ReactNode;
   redirectTo?: string;
 }
@@ -24,20 +25,21 @@ export default function AuthGuard({
 
   useEffect(() => {
     if (!isLoading) {
-      // Si requiere autenticación pero no está autenticado
+      // Si requiere autenticación pero no está autenticado, redirigir a login
       if (requireAuth && !isAuthenticated) {
-        const redirect = redirectTo || '/login';
+        const redirect = redirectTo || '/auth/login';
         router.push(redirect);
         return;
       }
 
-      // Si requiere rol específico pero no lo tiene
+      // Si requiere rol específico pero no lo tiene, redirigir a dashboard
       if (requireAuth && isAuthenticated && requiredRole && user?.role !== requiredRole) {
-        router.push('/dashboard'); // Redirect to default page
+        const redirect = redirectTo || '/dashboard';
+        router.push(redirect);
         return;
       }
 
-      // Si no requiere autenticación pero está autenticado
+      // Si no requiere autenticación pero está autenticado, redirigir a dashboard
       if (!requireAuth && isAuthenticated) {
         const redirect = redirectTo || '/dashboard';
         router.push(redirect);
@@ -108,21 +110,26 @@ export function AdminRoute({ children, ...props }: Omit<AuthGuardProps, 'require
 export function usePermissions() {
   const { user, isAuthenticated } = useAuth();
 
-  const hasRole = (role: 'admin' | 'pharmacist' | 'assistant') => {
+  const hasRole = (role: UserRole) => {
     return isAuthenticated && user?.role === role;
   };
 
-  const hasAnyRole = (roles: ('admin' | 'pharmacist' | 'assistant')[]) => {
+  const hasAnyRole = (roles: UserRole[]) => {
     return isAuthenticated && user?.role && roles.includes(user.role);
   };
 
   const isAdmin = () => hasRole('admin');
+  const isSuperAdmin = () => hasRole('super_admin');
+  const isSystemAdmin = () => hasRole('system_admin');
   const isPharmacist = () => hasRole('pharmacist');
   const isAssistant = () => hasRole('assistant');
+  const isCustomerManager = () => hasRole('customer_manager');
+  const isSalesOperator = () => hasRole('sales_operator');
+  const isBasicUser = () => hasRole('basic_user');
 
-  const canManageUsers = () => isAdmin();
-  const canViewReports = () => hasAnyRole(['admin', 'pharmacist']);
-  const canMakeSales = () => hasAnyRole(['admin', 'pharmacist', 'assistant']);
+  const canManageUsers = () => hasAnyRole(['super_admin', 'admin', 'system_admin']);
+  const canViewReports = () => hasAnyRole(['super_admin', 'admin', 'system_admin', 'pharmacist', 'customer_manager']);
+  const canMakeSales = () => hasAnyRole(['super_admin', 'admin', 'sales_operator', 'pharmacist', 'assistant']);
 
   return {
     user,
@@ -130,8 +137,13 @@ export function usePermissions() {
     hasRole,
     hasAnyRole,
     isAdmin,
+    isSuperAdmin,
+    isSystemAdmin,
     isPharmacist,
     isAssistant,
+    isCustomerManager,
+    isSalesOperator,
+    isBasicUser,
     canManageUsers,
     canViewReports,
     canMakeSales,
