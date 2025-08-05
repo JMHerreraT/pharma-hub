@@ -59,7 +59,7 @@ const AuthWelcomeContent = () => {
 
     return (
     <>
-      <Card className="w-full max-w-md mx-auto bg-white/95 backdrop-blur-sm shadow-xl">
+      <Card className="w-full max-w-md mx-auto bg-card/95 backdrop-blur-sm shadow-xl border-border/50">
         <CardContent className="p-8">
           {!showBusinessIdForm ? (
             <div className="text-center space-y-6">

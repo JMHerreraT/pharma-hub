@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Mail, Eye, EyeOff } from 'lucide-react'
-import { toast } from 'sonner'
+import { useLogin } from '@/lib/auth-services'
 
 // Schema de validación
 const loginSchema = z.object({
@@ -21,7 +21,7 @@ type LoginFormData = z.infer<typeof loginSchema>
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const loginMutation = useLogin()
 
   const {
     register,
@@ -32,30 +32,21 @@ const LoginForm = () => {
   })
 
   const onSubmit = async (data: LoginFormData) => {
-    setIsLoading(true)
     try {
-      // Simular login
-      console.log('Datos de login:', data)
+      await loginMutation.mutateAsync(data)
 
-      // Simular delay de API
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      toast.success('¡Bienvenido de vuelta!')
-
-      // Redirigir al dashboard
+      // Redirigir al dashboard después del login exitoso
       setTimeout(() => {
         window.location.href = '/dashboard'
       }, 1000)
-
-    } catch {
-      toast.error('Error al iniciar sesión. Verifica tus credenciales.')
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      // El error ya se maneja en el mutation
+      console.error('Login error:', error)
     }
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto bg-white/95 backdrop-blur-sm shadow-xl">
+    <Card className="w-full max-w-md mx-auto bg-card/95 backdrop-blur-sm shadow-xl border-border/50">
       <CardContent className="p-8">
         <div className="space-y-6">
           {/* Header */}
@@ -81,10 +72,10 @@ const LoginForm = () => {
                   className="pr-10"
                   {...register('email')}
                 />
-                <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               </div>
               {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
+                <p className="text-sm text-destructive">{errors.email.message}</p>
               )}
             </div>
 
@@ -102,13 +93,13 @@ const LoginForm = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-red-600">{errors.password.message}</p>
+                <p className="text-sm text-destructive">{errors.password.message}</p>
               )}
             </div>
 
@@ -127,9 +118,16 @@ const LoginForm = () => {
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-              disabled={isLoading}
+              disabled={loginMutation.isPending}
             >
-              {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              {loginMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Iniciando sesión...
+                </div>
+              ) : (
+                'Iniciar Sesión'
+              )}
             </Button>
           </form>
 

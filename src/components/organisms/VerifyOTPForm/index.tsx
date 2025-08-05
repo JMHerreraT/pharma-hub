@@ -11,15 +11,17 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp"
 import { ArrowLeft, Shield, RotateCcw } from 'lucide-react'
-import { toast } from 'sonner'
+import { useVerifyOTP, useResendOTP } from '@/lib/auth-services'
 
 const VerifyOTPForm = () => {
   const searchParams = useSearchParams()
   const [otp, setOtp] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [isResending, setIsResending] = useState(false)
   const [countdown, setCountdown] = useState(60)
   const [canResend, setCanResend] = useState(false)
+
+  // Hooks de autenticación
+  const verifyOTPMutation = useVerifyOTP()
+  const resendOTPMutation = useResendOTP()
 
   const email = searchParams.get('email') || ''
 
@@ -39,48 +41,35 @@ const VerifyOTPForm = () => {
       return
     }
 
-    setIsLoading(true)
     try {
-      // Simular verificación de OTP
-      console.log('Verificando OTP:', otp, 'para email:', email)
+      await verifyOTPMutation.mutateAsync({
+        email,
+        code: otp,
+      })
 
-      // Simular delay de API
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      toast.success('Código verificado correctamente')
-
-      // Redirigir a reset password
+      // Redirigir al dashboard después de verificación exitosa
       setTimeout(() => {
-        window.location.href = `/auth/reset-password?email=${encodeURIComponent(email)}&token=${otp}`
+        window.location.href = '/dashboard'
       }, 1000)
-
     } catch {
-      toast.error('Código incorrecto. Inténtalo de nuevo.')
-      setOtp('')
-    } finally {
-      setIsLoading(false)
+      // El error ya se maneja en el mutation
+      setOtp('') // Limpiar el campo OTP
     }
   }
 
   const handleResendCode = async () => {
-    setIsResending(true)
     try {
-      // Simular reenvío de código
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      toast.success('Nuevo código enviado a tu email')
+      await resendOTPMutation.mutateAsync(email)
       setCountdown(60)
       setCanResend(false)
-
     } catch {
-      toast.error('Error al reenviar el código')
-    } finally {
-      setIsResending(false)
+      // El error ya se maneja en el mutation
+      console.error('Resend OTP error')
     }
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto bg-white/95 backdrop-blur-sm shadow-xl">
+    <Card className="w-full max-w-md mx-auto bg-card/95 backdrop-blur-sm shadow-xl border-border/50">
       <CardContent className="p-8">
         <div className="space-y-6">
           {/* Header */}
@@ -141,10 +130,17 @@ const VerifyOTPForm = () => {
             {/* Verify Button */}
             <Button
               onClick={handleVerifyOTP}
-              disabled={isLoading || otp.length !== 6}
+              disabled={verifyOTPMutation.isPending || otp.length !== 6}
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              {isLoading ? 'Verificando...' : 'Verificar código'}
+              {verifyOTPMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Verificando...
+                </div>
+              ) : (
+                'Verificar código'
+              )}
             </Button>
           </div>
 
@@ -161,11 +157,11 @@ const VerifyOTPForm = () => {
             ) : (
               <button
                 onClick={handleResendCode}
-                disabled={isResending}
+                disabled={resendOTPMutation.isPending}
                 className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors mx-auto"
               >
-                <RotateCcw className={`h-4 w-4 ${isResending ? 'animate-spin' : ''}`} />
-                {isResending ? 'Reenviando...' : 'Reenviar código'}
+                <RotateCcw className={`h-4 w-4 ${resendOTPMutation.isPending ? 'animate-spin' : ''}`} />
+                {resendOTPMutation.isPending ? 'Reenviando...' : 'Reenviar código'}
               </button>
             )}
           </div>
