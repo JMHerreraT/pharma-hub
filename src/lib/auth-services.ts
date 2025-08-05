@@ -82,15 +82,11 @@ export function useLogin() {
   return useMutation({
     mutationFn: async (credentials: LoginCredentials): Promise<User> => {
       try {
-        console.log('🔐 Starting login process for:', credentials.email);
-
         // Step 1: Authenticate with Amplify
         const { isSignedIn, nextStep } = await signIn({
           username: credentials.email,
           password: credentials.password,
         });
-
-        console.log('🔐 SignIn result:', { isSignedIn, nextStep });
 
         if (!isSignedIn) {
           // Handle different sign-in steps
@@ -107,25 +103,18 @@ export function useLogin() {
             throw new Error('Se requiere completar desafío personalizado');
           }
 
-          // Log the actual error for debugging
-          console.error('🔐 SignIn failed:', { isSignedIn, nextStep });
           throw new Error('Credenciales inválidas');
         }
 
         // Step 2: Get the current session
-        console.log('🔐 Getting auth session...');
         const session = await fetchAuthSession();
 
         if (!session.tokens?.accessToken) {
-          console.error('🔐 No access token found in session:', session);
           throw new Error('No se pudo obtener la sesión de autenticación');
         }
 
         // Step 3: Extract user info from token claims
         const claims = session.tokens.accessToken.payload;
-
-        // Log claims for debugging (remove in production)
-        console.log('🔍 Cognito Claims:', claims);
 
         const user: User = {
           id: claims.sub as string || claims['cognito:username'] as string,
@@ -139,11 +128,8 @@ export function useLogin() {
           phone: claims.phone_number as string || '',
         };
 
-        console.log('🔐 User extracted from claims:', user);
-
         // Step 4: Optionally sync with backend for additional data
         try {
-          console.log('🔐 Syncing with backend...');
           const { data: backendResponse } = await apiClient.post('/auth/login', {
             email: credentials.email,
             password: credentials.password, // This won't be used by backend, just for validation
@@ -155,22 +141,19 @@ export function useLogin() {
               ...user,
               ...backendResponse.data.user,
             };
-            console.log('🔐 Merged user data:', mergedUser);
             return mergedUser;
           }
         } catch (backendError) {
-          console.warn('🔐 Backend sync failed, using Amplify data only:', backendError);
+          console.warn('Backend sync failed, using Amplify data only:', backendError);
         }
 
         return user;
       } catch (error: unknown) {
-        console.error('🔐 Login error:', error);
-
         const err = error as { name?: string; message?: string };
 
         // Handle specific Cognito errors
         if (err.name === 'UserNotConfirmedException') {
-          throw new Error('Tu cuenta no está verificada. Revisa tu email para confirmar tu cuenta.');
+          throw new Error('Tu cuenta no está verificada. Revisa tu email.');
         }
         if (err.name === 'NotAuthorizedException') {
           throw new Error('Email o contraseña incorrectos');
