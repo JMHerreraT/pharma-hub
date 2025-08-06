@@ -31,13 +31,12 @@ export function useAuth() {
 
         // Extract user info from token claims
         const claims = session.tokens.accessToken.payload;
-
         // Create user object from token claims
         const user: User = {
           id: claims.sub as string,
           email: claims.email as string,
           name: claims.name as string || claims['cognito:username'] as string,
-          role: claims['custom:role'] as UserRole || 'basic_user',
+          role: claims['cognito:groups'] as UserRole || 'basic_user',
           organizationId: claims['custom:organizationId'] as string || '',
           businessId: claims['custom:businessId'] as string || '',
           branchId: claims['custom:branchId'] as string || '',

@@ -291,9 +291,9 @@ export class PermissionManager {
    * Verifica si un rol tiene un permiso específico
    */
   static hasPermission(roleId: RoleId, permission: Permission): boolean {
+    console.log('roleId: ', roleId);
     const role = ROLES[roleId]
     if (!role) return false
-
     // Super admin tiene acceso a todo
     if (role.permissions.includes(PERMISSIONS.ADMIN_FULL_ACCESS as Permission)) {
       return true

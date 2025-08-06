@@ -16,17 +16,20 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { BellIcon, CreditCardIcon, LogOutIcon, Monitor, Moon, MoreVertical, Sun, SunMoon, UserCircle } from "lucide-react"
+import { useAuthContext } from "@/components/providers/auth-provider"
+import { User } from "@/types/auth"
 
 interface UserProfileProps {
-  user: {
-    name: string;
-    email: string;
-    avatar?: string;
-  };
+  user: User;
 }
 
 export function UserProfile({ user }: UserProfileProps) {
   const { isMobile } = useSidebar()
+  const { logout, isLoggingOut } = useAuthContext()
+
+  const handleLogout = () => {
+    logout()
+  }
 
   return (
     <SidebarMenu>
@@ -39,7 +42,9 @@ export function UserProfile({ user }: UserProfileProps) {
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
@@ -60,7 +65,9 @@ export function UserProfile({ user }: UserProfileProps) {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
@@ -100,9 +107,13 @@ export function UserProfile({ user }: UserProfileProps) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOutIcon />
-              Log out
+            <DropdownMenuItem
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+            >
+              <LogOutIcon className="size-4" />
+              {isLoggingOut ? 'Cerrando sesión...' : 'Log out'}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

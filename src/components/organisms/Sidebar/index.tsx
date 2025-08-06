@@ -38,7 +38,8 @@ import {
   Zap
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { PermissionManager, getCurrentUser, PERMISSIONS, Permission } from "@/lib/roles"
+import { PermissionManager, PERMISSIONS, Permission, mapCognitoRoleToRoleId } from "@/lib/roles"
+import { useAuthContext } from "@/components/providers/auth-provider"
 
 // Tipo para elementos de navegación
 interface NavItem {
@@ -172,9 +173,9 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const user = getCurrentUser()
+  const { user } = useAuthContext()
   const pathname = usePathname()
-
+  console.log('user: ', user);
   // Función para determinar si un item está activo
   const isItemActive = (itemUrl: string) => {
     // Siempre priorizar coincidencias exactas
@@ -190,11 +191,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return false
   }
 
+  // Si no hay usuario, no mostrar el sidebar
+  if (!user) {
+    return null
+  }
+
+  // Mapear el rol de Cognito al RoleId del sistema
+  const userRoleId = mapCognitoRoleToRoleId(user.role)
+
   // Filtrar secciones y elementos según permisos del usuario
   const filteredNavMain = data.navMain.filter(section => {
     // Si la sección requiere permiso, verificarlo
     if (section.requiredPermission) {
-      if (!PermissionManager.hasPermission(user.roleId, section.requiredPermission)) {
+      if (!PermissionManager.hasPermission(userRoleId, section.requiredPermission)) {
         return false
       }
     }
@@ -202,7 +211,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     // Filtrar elementos dentro de la sección
     const visibleItems = section.items.filter(item => {
       if (item.requiredPermission) {
-        return PermissionManager.hasPermission(user.roleId, item.requiredPermission)
+        return PermissionManager.hasPermission(userRoleId, item.requiredPermission)
       }
       return true
     })
@@ -213,7 +222,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ...section,
     items: section.items.filter(item => {
       if (item.requiredPermission) {
-        return PermissionManager.hasPermission(user.roleId, item.requiredPermission)
+        return PermissionManager.hasPermission(userRoleId, item.requiredPermission)
       }
       return true
     })
@@ -351,7 +360,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter className="px-4 py-4 border-t border-gray-200 dark:border-gray-700">
         <div className="space-y-4">
           {/* Botones de acción - solo para admins */}
-          {PermissionManager.hasPermission(user.roleId, PERMISSIONS.ADMIN_FULL_ACCESS) && (
+          {PermissionManager.hasPermission(userRoleId, PERMISSIONS.ADMIN_FULL_ACCESS) && (
             <div className="space-y-1 mb-4">
               <Link
                 href="/invite"
