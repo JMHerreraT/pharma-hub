@@ -15,16 +15,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { DataTableCellViewer } from '@/components/organisms/DataTableCellViewer';
 import ProductAvatar from "@/components/molecules/ProductAvatar"
+import { ProductsQueryRequest } from '@/types/product';
 
 export const schema = z.object({
     id: z.number(),
     header: z.string(),
-    type: z.string(),
+    category: z.string(),
     status: z.string(),
     target: z.string(),
     limit: z.string(),
     reviewer: z.string(),
     image: z.string().optional(),
+    stock: z.number(),
+    price: z.number(),
+    minStock: z.number(),
+    maxStock: z.number(),
+    expirationDate: z.string().optional(),
+    requiresPrescription: z.boolean(),
+    compounds: z.array(z.string()),
   });
 
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
@@ -72,21 +80,49 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
                 alt={item.header}
                 size="md"
               />
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 cursor-pointer">
                 <DataTableCellViewer
                   triggerText={item.header}
                   title={`Editar ${item.header}`}
                   description="Actualizar información del producto"
                   onSubmit={() => console.log("¡Enviar actualización del producto!")}
                 >
-                  <form className="flex flex-col gap-4">
+                  <form className="flex flex-col gap-4 px-4">
                     <div>
-                      <Label htmlFor="type">Categoría</Label>
-                      <Input id="type" defaultValue={item.type} />
+                      <Label htmlFor="category">Categoría</Label>
+                      <Input id="category" defaultValue={item.category} />
                     </div>
                     <div>
                       <Label htmlFor="status">Estado</Label>
                       <Input id="status" defaultValue={item.status} />
+                    </div>
+                    <div>
+                      <Label htmlFor="price">Precio</Label>
+                      <Input id="price" defaultValue={item.price} />
+                    </div>
+                    <div>
+                      <Label htmlFor="stock">Stock</Label>
+                      <Input id="stock" defaultValue={item.stock} />
+                    </div>
+                    <div>
+                      <Label htmlFor="minStock">Stock mínimo</Label>
+                      <Input id="minStock" defaultValue={item.minStock} />
+                    </div>
+                    <div>
+                      <Label htmlFor="maxStock">Stock máximo</Label>
+                      <Input id="maxStock" defaultValue={item.maxStock} />
+                    </div>
+                    <div>
+                      <Label htmlFor="expirationDate">Fecha de vencimiento</Label>
+                      <Input id="expirationDate" defaultValue={item.expirationDate} />
+                    </div>
+                    <div>
+                      <Label htmlFor="requiresPrescription">Requiere receta</Label>
+                      <Input id="requiresPrescription" defaultValue={item.requiresPrescription} />
+                    </div>
+                    <div>
+                      <Label htmlFor="compounds">Compuestos</Label>
+                      <Input id="compounds" defaultValue={item.compounds.join(', ')} />
                     </div>
                   </form>
                 </DataTableCellViewer>
@@ -97,12 +133,12 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         enableHiding: false,
       },
     {
-      accessorKey: "type",
+      accessorKey: "category",
       header: "Categoría",
       cell: ({ row }) => (
         <div className="w-32">
           <Badge variant="outline" className="px-1.5 text-muted-foreground">
-            {row.original.type}
+            {row.original.category}
           </Badge>
         </div>
       ),
@@ -125,7 +161,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
       ),
     },
     {
-      accessorKey: "target",
+      accessorKey: "stock",
       header: () => <div className="w-full text-right">Stock</div>,
       cell: ({ row }) => (
         <form
@@ -143,7 +179,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           </Label>
           <Input
             className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
-            defaultValue={row.original.target}
+            defaultValue={row.original.stock}
             id={`${row.original.id}-stock`}
             type="number"
           />
@@ -151,7 +187,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
       ),
     },
     {
-      accessorKey: "limit",
+      accessorKey: "price",
       header: () => <div className="w-full text-right">Precio</div>,
       cell: ({ row }) => (
         <form
@@ -164,12 +200,14 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
             })
           }}
         >
+
+          {console.log("row: ", row.original)}
           <Label htmlFor={`${row.original.id}-price`} className="sr-only">
             Precio
           </Label>
           <Input
             className="h-8 w-20 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
-            defaultValue={`$${row.original.limit}`}
+            defaultValue={`$${row.original.price}`}
             id={`${row.original.id}-price`}
           />
         </form>
@@ -240,24 +278,33 @@ interface ProductsPageDataTableProps {
   enableRowsPerPage?: boolean;
   enablePagination?: boolean;
   defaultItemsToShow?: number;
+  data?: z.infer<typeof schema>[];
+  onDataChange?: (newData: z.infer<typeof schema>[]) => void;
+  onPaginationChange?: (newQueryRequest: ProductsQueryRequest) => void;
 }
 
 const ProductsPageDataTable = ({
   enableRowsPerPage = true,
   enablePagination = true,
-  defaultItemsToShow = 10
+  defaultItemsToShow = 10,
+  data: propData,
+  onDataChange
 }: ProductsPageDataTableProps) => {
   const handleDataChange = (newData: z.infer<typeof schema>[]) => {
     console.log('Datos de productos cambiados:', newData);
+    onDataChange?.(newData);
     // Aquí podrías hacer una llamada a la API para guardar los cambios
     toast.success('Orden de productos actualizado exitosamente');
   };
 
+  // Use prop data if provided, otherwise use default data
+  const tableData = propData || data;
+  console.log(tableData)
   return (
     <div className="w-full h-full">
       <div className="overflow-x-auto">
         <DraggableDataTable
-          data={data}
+          data={tableData}
           columns={columns}
           enableRowsPerPage={enableRowsPerPage}
           enablePagination={enablePagination}

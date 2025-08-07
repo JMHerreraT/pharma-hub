@@ -15,8 +15,8 @@ apiClient.interceptors.request.use(
   async (config) => {
     try {
       const session = await fetchAuthSession();
-      if (session.tokens?.accessToken) {
-        config.headers.Authorization = `Bearer ${session.tokens.accessToken.toString()}`;
+      if (session.tokens?.idToken) {
+        config.headers.Authorization = `Bearer ${session.tokens.idToken.toString()}`;
       }
 
       // Log en desarrollo

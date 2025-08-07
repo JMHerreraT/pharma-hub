@@ -7,7 +7,6 @@ import { PermissionManager, PERMISSIONS, mapCognitoRoleToRoleId } from '@/lib/ro
 
 export default function InvitePage() {
   const { user } = useAuth()
-  console.log('user: ', user);
   // Verificar permisos usando el mapeo correcto de Cognito
   const canInviteUsers = user && PermissionManager.hasPermission(mapCognitoRoleToRoleId(user?.role || ''), PERMISSIONS.USER_MANAGEMENT)
 

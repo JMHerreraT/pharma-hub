@@ -1,3 +1,4 @@
+import { ProductsQueryRequest } from '@/types/product';
 import { QueryClient } from '@tanstack/react-query';
 
 export const queryClient = new QueryClient({
@@ -5,15 +6,17 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutos
       gcTime: 10 * 60 * 1000, // 10 minutos (antes cacheTime)
-      retry: (failureCount, error: unknown) => {
-        // No retry en errores de auth
-        const err = error as { status?: number };
-        if (err?.status === 401 || err?.status === 403) {
-          return false;
-        }
-        return failureCount < 3;
-      },
+      retry: false,
+      // retry: (failureCount, error: unknown) => {
+      //   // No retry en errores de auth
+      //   const err = error as { status?: number };
+      //   if (err?.status === 401 || err?.status === 403) {
+      //     return false;
+      //   }
+      //   return failureCount < 3;
+      // },
       refetchOnWindowFocus: false,
+
     },
     mutations: {
       retry: 1,
@@ -32,7 +35,7 @@ export const queryKeys = {
 
   // Products
   products: ['products'] as const,
-  productsList: (filters?: Record<string, unknown>) =>
+  productsList: (filters?: ProductsQueryRequest) =>
     [...queryKeys.products, 'list', filters] as const,
   product: (id: string) => [...queryKeys.products, 'detail', id] as const,
 

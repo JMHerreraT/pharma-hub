@@ -29,7 +29,7 @@ export function DataTableCellViewer({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="link" className="w-fit px-0 text-left text-foreground">
+        <Button variant="link" className="w-fit px-0 text-left text-foreground cursor-pointer">
           {triggerText}
         </Button>
       </SheetTrigger>
