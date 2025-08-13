@@ -1,32 +1,20 @@
-'use client'
+"use client"
 
-import React from 'react'
-import InviteUserForm from '@/components/organisms/InviteUserForm'
+import React, { Suspense } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { PermissionManager, PERMISSIONS, mapCognitoRoleToRoleId } from '@/lib/roles'
+import InviteUserPage from '@/components/pages/InviteUserPage'
 
-export default function InvitePage() {
+function InviteContent() {
   const { user } = useAuth()
-  // Verificar permisos usando el mapeo correcto de Cognito
   const canInviteUsers = user && PermissionManager.hasPermission(mapCognitoRoleToRoleId(user?.role || ''), PERMISSIONS.USER_MANAGEMENT)
 
-  // Mock organization data - en producción vendría del contexto o API
   const organization = user ? {
     id: user.organizationId,
-    organizationName: 'Farmacia Demo Central', // Esto debería venir del contexto
+    organizationName: 'Farmacia Demo Central',
     branches: [
-      {
-        id: 'branch-1',
-        name: 'Sucursal Centro',
-        businessId: 'farmacia-demo-centro',
-        city: 'Lima'
-      },
-      {
-        id: 'branch-2',
-        name: 'Sucursal Norte',
-        businessId: 'farmacia-demo-norte',
-        city: 'Lima'
-      }
+      { id: 'branch-1', name: 'Sucursal Centro', businessId: 'farmacia-demo-centro', city: 'Lima' },
+      { id: 'branch-2', name: 'Sucursal Norte', businessId: 'farmacia-demo-norte', city: 'Lima' }
     ]
   } : undefined
 
@@ -53,17 +41,25 @@ export default function InvitePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/5 to-primary/10 p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Invitar Usuario</h1>
-          <p className="text-muted-foreground">
-            Invita nuevos usuarios a tu organización
-          </p>
-        </div>
-
-        <InviteUserForm organization={organization} />
+    <div className="min-h-screen h-screen w-full bg-gradient-to-br from-background via-secondary/5 to-primary/10 p-4">
+      <div className="w-full h-full">
+        <InviteUserPage organization={organization} />
       </div>
     </div>
+  )
+}
+
+export default function InvitePageRoute() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-muted-foreground">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <InviteContent />
+    </Suspense>
   )
 }

@@ -32,7 +32,7 @@ export const TableEditableInput: React.FC<TableEditableInputProps> = ({
         {header}
       </Label>
       <Input
-        className={`h-8 ${width} border-transparent bg-transparent ${
+        className={`h-8 ${width} bg-transparent ${
           align === "right" ? "text-right" : "text-left"
         } shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background`}
         defaultValue={value}

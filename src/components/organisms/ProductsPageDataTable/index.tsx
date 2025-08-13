@@ -1,5 +1,4 @@
 import React from 'react'
-import data from '@/lib/example-data.json'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import z from 'zod';
 import { ColumnDef } from '@tanstack/react-table';
@@ -118,11 +117,11 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
                     </div>
                     <div>
                       <Label htmlFor="requiresPrescription">Requiere receta</Label>
-                      <Input id="requiresPrescription" defaultValue={item.requiresPrescription} />
+                      <Input id="requiresPrescription" defaultValue={item.requiresPrescription ? 'Sí' : 'No'} />
                     </div>
                     <div>
                       <Label htmlFor="compounds">Compuestos</Label>
-                      <Input id="compounds" defaultValue={item.compounds.join(', ')} />
+                      <Input id="compounds" defaultValue={(item.compounds ?? []).join(', ')} />
                     </div>
                   </form>
                 </DataTableCellViewer>
@@ -178,7 +177,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
             Stock
           </Label>
           <Input
-            className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
+            className="h-8 w-16 bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
             defaultValue={row.original.stock}
             id={`${row.original.id}-stock`}
             type="number"
@@ -201,12 +200,11 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           }}
         >
 
-          {console.log("row: ", row.original)}
           <Label htmlFor={`${row.original.id}-price`} className="sr-only">
             Precio
           </Label>
           <Input
-            className="h-8 w-20 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
+            className="h-8 w-20 bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
             defaultValue={`$${row.original.price}`}
             id={`${row.original.id}-price`}
           />
@@ -297,8 +295,8 @@ const ProductsPageDataTable = ({
     toast.success('Orden de productos actualizado exitosamente');
   };
 
-  // Use prop data if provided, otherwise use default data
-  const tableData = propData || data;
+  // Use prop data if provided, otherwise empty list
+  const tableData = propData ?? [];
   console.log(tableData)
   return (
     <div className="w-full h-full">

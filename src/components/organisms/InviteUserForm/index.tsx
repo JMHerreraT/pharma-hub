@@ -35,9 +35,10 @@ interface InviteUserFormProps {
       city: string
     }>
   }
+  className?: string
 }
 
-const InviteUserForm = ({ organization }: InviteUserFormProps) => {
+const InviteUserForm = ({ organization, className }: InviteUserFormProps) => {
   const [invitationUrl, setInvitationUrl] = React.useState<string>('')
   const [copied, setCopied] = React.useState(false)
 
@@ -85,7 +86,7 @@ const InviteUserForm = ({ organization }: InviteUserFormProps) => {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto bg-card/95 backdrop-blur-sm shadow-xl border-border/50">
+    <Card className={`w-full mx-auto bg-card/95 backdrop-blur-sm shadow-xl border-border/50 ${className || 'max-w-md'}`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="w-5 h-5 text-primary" />

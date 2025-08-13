@@ -55,21 +55,21 @@ const LazyProductsPageDataTable = () => {
 
   // Transform products data to match the expected format
   const transformedData: TableData[] = productsResponse?.products?.map((product, index) => ({
-    id: index + 1, // Use index for drag functionality
+    id: index + 1,
     header: product.name,
     category: product.category,
-    status: product.stock > 0 ? 'Disponible' : 'agotado',
+    status: product.stock > 0 ? 'Disponible' : 'Agotado',
     target: product.sku,
     limit: product.stock.toString(),
     reviewer: product.supplier || 'Sin proveedor',
-    image: undefined, // Add image if available
+    image: undefined,
     stock: product.stock,
     minStock: product.minStock,
     maxStock: product.maxStock,
     expirationDate: product.expirationDate,
-    requiresPrescription: product.requiresPrescription,
-    compounds: product.compounds,
-    price: product.price.toString(),
+    requiresPrescription: !!product.requiresPrescription,
+    compounds: product.compounds ?? [],
+    price: product.price,
   })) || []
 
   return (

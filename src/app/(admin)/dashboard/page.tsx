@@ -1,9 +1,7 @@
 import HomePage from "@/components/pages/HomePage";
-import { ProtectedRoute } from "@/components/guards/AuthGuard";
 
 export default function DashboardPage() {
   return (
-    <ProtectedRoute>
       <div className="w-full h-full">
         <div className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
@@ -21,6 +19,5 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </ProtectedRoute>
   );
 }

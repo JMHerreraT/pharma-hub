@@ -294,7 +294,7 @@ const SearchDialog = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (isOp
               placeholder="Buscar o escribir un comando..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 h-14 text-base bg-transparent border-0 text-foreground placeholder:text-muted-foreground focus:ring-0 focus:border-transparent w-full"
+              className="pl-12 h-14 text-base bg-transparent text-foreground placeholder:text-muted-foreground focus:ring-0 focus:border-transparent w-full"
               autoFocus
             />
           </div>
